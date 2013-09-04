@@ -1,0 +1,9 @@
+<form data-role="form" name="form" ng-submit="save()" novalidate ng-controller="ProfileController">
+
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Nom" ng-model="profile.name"/>
+    </div>
+
+	<button type="type" class="btn btn-primary" ng-disabled="hasChanges()">Enregistrer</button>
+
+</form>

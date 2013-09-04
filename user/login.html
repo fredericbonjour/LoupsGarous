@@ -1,0 +1,13 @@
+<form data-role="form" name="form" novalidate ng-submit="login()" ng-controller="LoginController">
+
+    <div ng-hide="authenticating">
+        <div class="form-group">
+            <input type="email" class="form-control" placeholder="Adresse e-mail" required ng-model="username"/>
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" placeholder="Mot de passe" required ng-model="password"/>
+        </div>
+        <button type="submit" class="btn btn-default" ng-disabled="form.$invalid">Hopla !</button>
+    </div>
+
+</form>

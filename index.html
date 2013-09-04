@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr" ng-app="loups">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>test</title>
+
+	<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="lib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
+	<link href="css/styles.css" rel="stylesheet" />
+
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="lib/angularjs/angular.js"></script>
+	<script src="lib/angularjs/angular-route.js"></script>
+
+	<script src="https://cdn.firebase.com/v0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/v0/firebase-simple-login.js"></script>
+	<script src="https://cdn.firebase.com/libs/angularfire/0.3.0/angularfire.min.js"></script>
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default" role="navigation" ng-controller="NavBarController">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#/game">Test</a>
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+			<li><a href="#/profile">
+				<span ng-if="userInfo.name">{{ userInfo.name }}</span>
+				<span ng-if="! userInfo.name">{{ user.email }}</span>
+				</a></li>
+		</ul>
+	</nav>
+
+	<div class="container">
+
+		<div class="col-md-3"></div>
+
+		<div class="col-md-9">
+            <div class="ng-view"></div>
+		</div>
+
+	</div>
+
+	<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="js/app.js"></script>
+	<script src="user/user.js"></script>
+	<script src="game/game.js"></script>
+</body>
+</html>
