@@ -32,7 +32,7 @@
 			<a class="navbar-brand" href="#/game"><img src="images/logo.png"/> Loups-Garous</a>
 		</div>
 		<ul class="nav navbar-nav navbar-right">
-			<li><a href="#/profile"><i class="icon-user"></i>
+			<li><a href="#/profile"><img ng-src="images/avatars/{{ userInfo.avatar }}" style="width:32px; height:32px;"/>
 				<span ng-if="userInfo.name">{{ userInfo.name }}</span>
 				<span ng-if="! userInfo.name">{{ user.email }}</span>
 				</a></li>
@@ -41,7 +41,17 @@
 
 	<div class="container">
 
-		<div class="col-md-3"></div>
+		<div class="col-md-3">
+
+			<ul class="nav nav-pills nav-stacked">
+				<li>
+					<a href="#/newgame">
+						Nouvelle partie
+					</a>
+				</li>
+			</ul>
+
+		</div>
 
 		<div class="col-md-9">
             <div class="ng-view"></div>

@@ -1,0 +1,44 @@
+<div class="view-newgame">
+
+	<ol class="breadcrumb">
+		<li><a href="#/">Accueil</a></li>
+		<li class="active">Nouvelle partie</li>
+	</ol>
+
+	<div class="page-header">
+		<h1>Créer une nouvelle partie</h1>
+	</div>
+
+	<form role="form" novalidate="" ng-submit="createGame()" name="form" class="form-horizontal">
+
+		<fieldset>
+			<legend>Paramètres</legend>
+
+			<div class="form-group">
+				<label class="control-label col-lg-2" for="playersCountInput">Joueurs</label>
+				<div class="col-lg-1">
+					<input type="number" class="form-control" ng-model="playersCount" id="playersCountInput"/>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label col-lg-2">Temps de jeu</label>
+				<div class="col-lg-2">
+					<input type="number" class="form-control" ng-model="dayTime" placeholder="Jour"/>
+				</div>
+				<div class="col-lg-2">
+					<input type="number" class="form-control" ng-model="nightTime" placeholder="Nuit"/>
+				</div>
+			</div>
+
+		</fieldset>
+
+		<fieldset>
+			<legend>Personnages <span class="badge">{{ selectedChars.length|number }}</span></legend>
+
+			<div ff-characters-list ng-model="selectedChars"></div>
+		</fieldset>
+
+	</form>
+
+</div>

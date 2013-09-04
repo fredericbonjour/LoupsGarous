@@ -10,6 +10,7 @@
 			.when('/login', { templateUrl: 'user/login.html' })
 			.when('/profile', { templateUrl: 'user/profile.html' })
 			.when('/game', { templateUrl: 'game/game.html' })
+			.when('/newgame', { templateUrl: 'game/newgame.html' })
 			.otherwise({ redirectTo: '/game' });
 	});
 
@@ -17,7 +18,7 @@
 
     app.service('Loups', function (angularFire, $rootScope, $timeout, $location) {
 
-	    var firebase, auth;
+	    var firebase, auth, currentPath = $location.path();
 
 	    firebase = new Firebase(FIREBASE_URL);
 	    auth = new FirebaseSimpleLogin(firebase, function(error, user) {
@@ -30,7 +31,7 @@
 			    else if (user) {
 				    console.log("Service: user logged in!");
 				    $rootScope.user = user;
-				    $location.path('/game');
+				    $location.path(currentPath);
 				    bindUser($rootScope, 'userInfo');
 			    }
 			    else {
@@ -81,7 +82,30 @@
 					return false;
 				}
 				return true;
-			}
+			},
+
+			characters : [
+				{
+					'id' : 'loup',
+					'name' : 'loup',
+					'type' : 'L'
+				},
+				{
+					'id' : 'vill',
+					'name' : 'villageois',
+					'type' : 'V'
+				},
+				{
+					'id' : 'sorc',
+					'name' : 'sorcière',
+					'type' : 'V'
+				},
+				{
+					'id' : 'voya',
+					'name' : 'voyante',
+					'type' : 'V'
+				}
+			]
 		};
 
 	});

@@ -1,5 +1,13 @@
-.navbar-brand {
-	padding: 10px 15px;
+/* Chat */
+
+.media-list.messages img.media-object {
+	width: 32px;
+	height: 32px;
+}
+
+.media-list.messages h4.media-heading {
+	color: #C0C0C0;
+	font-size: 16px;
 }
 
 
@@ -21,4 +29,36 @@
 
 [ff-message] .sender {
 
+}
+
+
+/* Characters */
+
+[ff-character] {
+	display: inline-block;
+	margin: 0 6px 6px 0;
+	cursor: pointer;
+	transition: color ease 0.2s;
+}
+
+[ff-character].selected {
+	color: #0088CC;
+}
+
+[ff-character].selected img {
+	border-color: #0088CC;
+}
+
+[ff-character] img {
+	border: 8px solid #444444;
+	border-radius: 4px 4px 4px 4px;
+	transition: border-color ease-in 0.2s;
+}
+
+[ff-character] figcaption {
+	text-align: center;
+	font-size: 140%;
+	font-family: "Times New Roman";
+	font-style: italic;
+	text-transform: capitalize;
 }
