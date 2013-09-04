@@ -1,9 +1,22 @@
-<form data-role="form" name="form" ng-submit="save()" novalidate ng-controller="ProfileController">
+<form role="form" class="form-horizontal" name="form" ng-submit="save()" novalidate ng-controller="ProfileController">
 
-    <div class="form-group">
-        <input type="text" class="form-control" placeholder="Nom" ng-model="profile.name"/>
+	<ol class="breadcrumb">
+		<li><a href="#/">Accueil</a></li>
+		<li class="active">Profil du joueur</li>
+	</ol>
+
+	<div class="form-group">
+		<label class="col-lg-2 control-label" for="pseudoInput">Pseudonyme</label>
+        <div class="col-lg-10">
+			<input type="text" class="form-control" id="pseudoInput" placeholder="Nom affiché lors du jeu (discussion et votes)" ng-model="profile.name"/>
+        </div>
     </div>
 
-	<button type="type" class="btn btn-primary" ng-disabled="hasChanges()">Enregistrer</button>
+	<div class="form-group">
+		<div class="col-lg-offset-2 col-lg-10">
+			<a href="#/" class="btn btn-default"><i class="icon-arrow-left"></i> Retour</a>
+			<button type="type" class="btn btn-primary" ng-disabled="hasChanges()"><i class="icon-ok"></i> Enregistrer</button>
+		</div>
+	</div>
 
 </form>

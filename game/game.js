@@ -1,4 +1,4 @@
-(function() {
+(function () {
 
     var app = angular.module("loups");
 
@@ -11,7 +11,7 @@
 
             $scope.addMessage = function(e) {
                 if (e.keyCode != 13) return;
-                $scope.messages.push({from: $rootScope.user.name || $scope.user.email, body: $scope.msg});
+                $scope.messages.push({sender: {'id': $rootScope.user.id, 'name': $rootScope.user.name || $scope.user.email}, body: $scope.msg});
                 $scope.msg = "";
             };
         }

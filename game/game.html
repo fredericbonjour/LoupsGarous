@@ -1,6 +1,12 @@
 <div class="chat" ng-controller="GameController">
-    <div class="messages">
-        <div ng-repeat="msg in messages"><em>{{msg.from}}</em>: {{msg.body}}</div>
+
+	<ol class="breadcrumb">
+		<li><a href="#/">Accueil</a></li>
+		<li class="active">Partie en cours</li>
+	</ol>
+
+	<div class="messages">
+        <div ng-repeat="msg in messages" ng-class="{'from-me':msg.sender.id==user.id}"><em>{{msg.sender.name}} {{msg.sender.id}}</em>: {{msg.body}}</div>
     </div>
 
     <div class="well">
