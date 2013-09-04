@@ -2,7 +2,7 @@
 
 	var FIREBASE_URL = 'https://ff-loups.firebaseio.com/';
 
-	var app = angular.module("loups", ["ngRoute", "firebase"]);
+	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]);
 
 	app.config(function($routeProvider)
 	{

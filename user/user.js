@@ -1,6 +1,6 @@
 (function() {
 
-	var app = angular.module("loups");
+	var app = angular.module("LoupsGarous");
 
 
 	app.controller('ProfileController', function (Loups, $scope, $rootScope, $location)
