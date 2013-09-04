@@ -1,11 +1,16 @@
-(function() {
+(function (moment) {
 
 	"use strict";
 
 	var app = angular.module("LoupsGarous");
 
-	app.directive('ffTimeAgo', ['$timeout', function ($timeout) {
 
+	/**
+	 * Usage:
+	 * <time ff-time-ago="<dateObject>"></time>
+	 */
+	app.directive('ffTimeAgo', function ($timeout)
+	{
 		var INTERVAL = 60*1000;
 
 		return {
@@ -14,18 +19,11 @@
 				'date' : '=ffTimeAgo'
 			},
 
-			'link' : function (scope, element, attrs) {
-				var stop,
-					content = element.html();
+			'link' : function (scope, iElement) {
+				var stop;
 
 				function update () {
-					var timeAgo = moment(scope.date).fromNow();
-					if (content) {
-						element.html(content.replace(/\{time\}/, timeAgo));
-					}
-					else {
-						element.html(timeAgo);
-					}
+					iElement.html(moment(scope.date).fromNow());
 					// Re-launch timer for next update
 					stop = $timeout(update, INTERVAL);
 				}
@@ -44,6 +42,36 @@
 				});
 			}
 		};
-	}]);
+	});
 
-})();
+
+	/**
+	 * Usage:
+	 * <div ff-message="<messageObject>"></div>
+	 */
+	app.directive('ffMessage', function ($rootScope, $sce)
+	{
+		return {
+			'restrict' : 'A',
+			'template' : '<div ng-class="{\'me\': meId == message.sender.id}"><span class="sender">{{ message.sender.name }}</span> <span class="pull-right text-muted"><i class="icon-time"></i> <time ff-time-ago="message.date"></time></span><div class="content" ng-bind-html="trustedBody"></div></div>',
+			'replace' : true,
+			'scope' : {
+				'message' : '=ffMessage'
+			},
+
+			'link' : function (scope) {
+				scope.meId = $rootScope.user.id;
+				scope.$watch('message', function (message) {
+					if (message) {
+						scope.trustedBody = $sce.trustAsHtml(message.body
+							.replace(/[;:][D\)]/gi, '<i class="icon-smile"></i>')
+							.replace(/:[\(]/gi, '<i class="icon-frown"></i>')
+						);
+					}
+				});
+			}
+		};
+	});
+
+
+})(moment);

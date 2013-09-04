@@ -1,3 +1,24 @@
 .navbar-brand {
-    padding: 10px 15px;
+	padding: 10px 15px;
+}
+
+
+[ff-message] {
+	padding: 5px 10px;
+	margin: 5px 0;
+	border-radius: 4px;
+	background: white;
+	border: 1px solid rgba(0,0,0,0.1);
+}
+
+[ff-message].me {
+	background: #eeeeee;
+}
+
+[ff-message] .content {
+	font-weight: bold;
+}
+
+[ff-message] .sender {
+
 }
