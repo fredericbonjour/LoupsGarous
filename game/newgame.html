@@ -23,7 +23,10 @@
 				Dès que tous les joueurs sont là, vous pouvez <strong>Fermer la salle</strong>
 				et configurer la partie.
 			</p>
-			<button type="button" class="btn btn-success" ng-click="prepareGame()">Fermer la salle</button>
+
+			<div class="btn-toolbar">
+				<button type="button" class="btn btn-success" ng-click="prepareGame()"><i class="icon-ok"></i> Fermer la salle</button>
+			</div>
 		</div>
 
 
@@ -35,19 +38,32 @@
 			</ol>
 
 			<p>
-				<button type="button" class="btn btn-danger" ng-click="cancelGame()">Annuler la partie</button>
+				Choisissez les personnages de la partie puis cliquez sur <strong>Commencer la partie</strong> pour jouer.
 			</p>
+
+			<div class="alert alert-danger" ng-if="gameData.selectedChars.count < countPlayers()">
+				<h4>Vous n'avez pas choisi assez de personnages.</h4>
+				<p>
+					<button type="button" class="btn btn-danger" ng-click="cancelGame()"><i class="icon-remove"></i> Annuler la partie</button>
+				</p>
+			</div>
+			<div class="alert alert-danger" ng-if="gameData.selectedChars.count > countPlayers()">
+				<h4>Vous avez choisi trop de personnages.</h4>
+				<p>
+					<button type="button" class="btn btn-danger" ng-click="cancelGame()"><i class="icon-remove"></i> Annuler la partie</button>
+				</p>
+			</div>
+			<div class="alert alert-success" ng-if="gameData.selectedChars.count == countPlayers()">
+				<h4>Vous avez choisi le bon nombre de personnages !</h4>
+				<p>
+					<button type="button" class="btn btn-success" ng-click="beginGame()"><i class="icon-play"></i> Commencer la partie !</button>
+					<button type="button" class="btn btn-danger" ng-click="cancelGame()"><i class="icon-remove"></i> Annuler la partie</button>
+				</p>
+			</div>
 
 			<form role="form" novalidate="" ng-submit="createGame()" name="form" class="form-horizontal">
 
-				<div class="form-group">
-					<label class="control-label col-lg-2" for="playersCountInput">Joueurs</label>
-					<div class="col-lg-1">
-						<input type="number" class="form-control" readonly ng-model="playersCount" id="playersCountInput"/>
-					</div>
-				</div>
-
-				<div ff-characters-list ng-model="selectedChars"></div>
+				<div ff-characters-list ng-model="gameData.selectedChars"></div>
 
 			</form>
 		</div><!-- end game.status == F -->

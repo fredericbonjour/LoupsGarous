@@ -96,24 +96,41 @@
 				{
 					'id' : 'loup',
 					'name' : 'loup',
-					'type' : 'L'
+					'desc' : 'Chaque nuit, vous voter pour dévorer un villageois. Le jour, vous masquer votre identité pour échapper à la vindicte populaire. Vous gagnez si tous les villageois sont tués.',
+					'type' : 'L',
+					'multiple' : true
 				},
 				{
 					'id' : 'vill',
 					'name' : 'villageois',
-					'type' : 'V'
+					'desc' : "Vous n'avez pas de pouvoir particulier. Survivez aux loups pour remporter la victoire !",
+					'type' : 'V',
+					'multiple' : true
 				},
 				{
 					'id' : 'sorc',
 					'name' : 'sorcière',
-					'type' : 'V'
+					'desc' : "Vous disposez de deux potions magiques : une potion de vie pour ressuciter un joueur tué par les loups-garous, et une potion de mort pour éliminer un joueur. Survivez aux loups pour remporter la victoire !",
+					'type' : 'V',
+					'multiple' : false
 				},
 				{
 					'id' : 'voya',
 					'name' : 'voyante',
-					'type' : 'V'
+					'desc' : "Chaque nuit, vous aurez l'occasion de découvrir l'identité d'un joueur de votre choix. Survivez aux loups pour remporter la victoire !",
+					'type' : 'V',
+					'multiple' : false
 				}
-			]
+			],
+
+			characterById : function (id) {
+				for (var i=0 ; i<this.characters.length ; i++) {
+					if (this.characters[i].id === id) {
+						return this.characters[i];
+					}
+				}
+				return null;
+			}
 		};
 
 	});

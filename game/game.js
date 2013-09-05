@@ -40,6 +40,12 @@
 				if (previous === 'PREPARING' && status === 'WAITING') {
 					$scope.quitGame();
 				}
+				else if (status === 'RUNNING') {
+					console.log("game started");
+					console.log("joinRef=", $rootScope.user.joinRef);
+					var player = $scope.players.getByName($rootScope.user.joinRef);
+					$scope.me = Loups.characterById(player.role);
+				}
 			}, true);
 		}
 	});
@@ -50,7 +56,8 @@
 		// Bindings
 		Loups.bind($scope, 'game', 'game');
 		Loups.bind($scope, 'users', 'users');
-		//$scope.players = Loups.bindCollection('game/players');
+
+		$scope.gameData = {};
 
 		// Actions
 		$scope.createGame = function () {
@@ -69,28 +76,44 @@
 			return 0;
 		};
 
-		$scope.$watch('game.players', function (players) {
-			if (players) {
-				var count = 0;
-				angular.forEach(players, function () {
-					count++;
-				});
-				console.log("players=", count);
-				$scope.playersCount = count;
-			}
-		}, true);
-
 		$scope.prepareGame = function () {
 			$scope.game.status = 'PREPARING';
 		};
 
 		$scope.cancelGame = function () {
-			//$scope.players = {};
 			$scope.createGame();
 		};
 
 		$scope.stopGame = function () {
 			$scope.game.status = 'STOPPED';
+		};
+
+		function assignCharacters () {
+			console.log($scope.gameData.selectedChars);
+			console.log($scope.game.players);
+
+			// Create flat list of chars
+			var i, j,
+				chars = $scope.gameData.selectedChars.chars,
+				list = [];
+
+			for (i=0 ; i<chars.length ; i++) {
+				for (j=0 ; j<chars[i].count ; j++) {
+					list.push(chars[i].id);
+				}
+			}
+
+			angular.forEach($scope.game.players, function (player) {
+				var r = Math.floor(Math.random()*list.length);
+				player.role = list[r];
+				console.log("Assigning ", player.role, " to ", player);
+				list.splice(r, 1);
+			});
+		}
+
+		$scope.beginGame = function () {
+			assignCharacters();
+			$scope.game.status = 'RUNNING';
 		};
 	});
 

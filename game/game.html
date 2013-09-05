@@ -55,6 +55,23 @@
 		</div>
 
 
+		<div ng-switch-when="RUNNING">
+
+			<ol class="breadcrumb">
+				<li><a href="#/">Accueil</a></li>
+				<li class="active">Partie en cours</li>
+			</ol>
+
+			<div class="alert alert-info">
+				<h4>La partie a commencé !</h4>
+				Bon jeu et... bonne chance !
+			</div>
+
+			<div ff-character="me"></div>
+
+		</div>
+
+
 		<!-- Chat -->
 		<ul class="media-list messages">
 			<li class="media" ng-repeat="msg in game.messages" ff-message="msg">

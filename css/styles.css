@@ -35,11 +35,29 @@
 /* Characters */
 
 [ff-character] {
-	display: inline-block;
-	margin: 0 6px 6px 0;
-	cursor: pointer;
+	display: block;
+	margin: 10px 0;
 	transition: color ease 0.2s;
+	position: relative;
 }
+
+[ff-character] .count {
+	position: absolute;
+	left: 106px;
+	top: 0px;
+	font-family: Verdana;
+	background: #0088CC;
+	color: white;
+	font-size: 40px;
+	line-height: 40px;
+	width: 60px;
+	height: 60px;
+	display: block;
+	padding: 10px;
+	text-align: center;
+	border-radius: 6px;
+}
+
 
 [ff-character].selected {
 	color: #0088CC;
@@ -53,10 +71,16 @@
 	border: 8px solid #444444;
 	border-radius: 4px 4px 4px 4px;
 	transition: border-color ease-in 0.2s;
+	float: left;
+	margin-right: 10px;
 }
 
 [ff-character] figcaption {
-	text-align: center;
+	font-size: 120%;
+	font-family: "Times New Roman";
+}
+
+[ff-character] figcaption h4 {
 	font-size: 140%;
 	font-family: "Times New Roman";
 	font-style: italic;

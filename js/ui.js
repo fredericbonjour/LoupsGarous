@@ -90,22 +90,24 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<h3>Loups</h3>' +
-				'<div ng-repeat="char in characters | filter:{type:\'L\'}" ff-character="char"></div>' +
-				'<h3>Villageois</h3>' +
-				'<div ng-repeat="char in characters | filter:{type:\'V\'}" ff-character="char"></div>',
+				'<div ng-repeat="char in characters" ff-character="char" selectable="true"></div>',
 			'require' : 'ngModel',
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
 			{
-				var selected = [];
+				var selected = {
+					'count' : 0,
+					'chars' : []
+				};
 				scope.characters = Loups.characters;
 
 				scope.$watch('characters', function (chars, old) {
-					selected.length = 0;
+					selected.count = 0;
+					selected.chars.length = 0;
 					angular.forEach(chars, function (char) {
-						if (char.selected) {
-							selected.push(char);
+						if (char.count) {
+							selected.chars.push(char);
+							selected.count += char.count;
 						}
 					});
 					ngModel.$setViewValue(selected);
@@ -119,17 +121,28 @@
 	{
 		return {
 			'restrict' : 'A',
-			'template' : '<figure ng-click="toggleSelect()" ng-class="{\'selected\': character.selected}"><img ng-src="images/cartes/{{ character.id }}.png"/><figcaption>{{ character.name }}</figcaption></figure>',
+			'template' :
+				'<figure ng-click="toggleSelect()" class="clearfix" ng-class="{\'selected\': character.count > 0}">' +
+					'<img ng-src="images/cartes/{{ character.id }}.png"/>' +
+					'<figcaption>' +
+						'<span ng-show="character.count > 0" class="count">{{ character.count }}</span>' +
+						'<h4>{{ character.name }}</h4>' +
+						'<p>{{ character.desc }}</p>' +
+						'<div class="btn-group" ng-if="selectable">' +
+							'<button class="btn btn-default" type="button" ng-disabled="character.count > 0 && ! character.multiple" ng-click="character.count = character.count+1"><i class="icon-plus"></i></button>' +
+							'<button class="btn btn-default" type="button" ng-disabled="! character.count" ng-click="character.count = character.count-1"><i class="icon-minus"></i></button>' +
+						'</div>' +
+					'</figcaption>' +
+				'</figure>',
 			'replace'  : true,
 			'scope' : {
-				character : '=ffCharacter'
+				character : '=ffCharacter',
+				selectable : '@'
 			},
 
 			'link' : function (scope, iElement, iAttrs, ctrl)
 			{
-				scope.toggleSelect = function () {
-					scope.character.selected = ! scope.character.selected;
-				};
+				scope.character.count = 0;
 			}
 		}
 	});
