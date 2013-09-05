@@ -6,14 +6,15 @@
 	app.controller('GameController', function (Loups, $scope, $rootScope) {
 		console.log("GameController");
 		if (Loups.checkLogin()) {
-			$scope.game = {
-				messages : [],
-				players : []
-			};
+
+			// Bindings
+			$scope.game = {};
 			Loups.bind($scope, 'game', 'game');
+			$scope.messages = Loups.bindCollection('game/messages');
+			$scope.players = Loups.bindCollection('game/players');
 
 			$scope.addMessage = function () {
-				$scope.game.messages.push({
+				$scope.messages.add({
 					sender: $rootScope.user.id,
 					body: $scope.msg,
 					date: new Date().getTime()
@@ -22,28 +23,24 @@
 			};
 
 			$scope.joinGame = function () {
-				// TODO Transactions!
-				if (! $scope.game.players) {
-					$scope.game.players = [];
-				}
-				$scope.game.players.push({
+				var joinRef = $scope.players.add({
 					'user'   : $rootScope.user.id,
 					'status' : 'ALIVE'
 				});
-				$rootScope.user.hasJoined = true;
+				console.log("Join id: ", joinRef.name());
+				$rootScope.userInfo.joinRef = joinRef.name();
 			};
 
 			$scope.quitGame = function () {
-				// TODO Transactions!
-				var i;
-				for (i=0 ; i<$scope.game.players.length ; i++) {
-					if ($scope.game.players[i].user === $rootScope.user.id) {
-						$scope.game.players.splice(i, 1);
-						$rootScope.user.hasJoined = false;
-						break;
-					}
-				}
+				$scope.players.remove($rootScope.userInfo.joinRef);
+				delete $rootScope.userInfo.joinRef;
 			};
+
+			$scope.$watch('game.status', function (status, previous) {
+				if (previous === 'PREPARING' && status === 'WAITING') {
+					$scope.quitGame();
+				}
+			}, true);
 		}
 	});
 
@@ -53,18 +50,42 @@
 		// Bindings
 		Loups.bind($scope, 'game', 'game');
 		Loups.bind($scope, 'users', 'users');
+		//$scope.players = Loups.bindCollection('game/players');
 
 		// Actions
 		$scope.createGame = function () {
 			$scope.game.status = 'WAITING';
-			$scope.game.players = [];
 		};
+
+		$scope.countPlayers = function () {
+			if ($scope.game && $scope.game.players) {
+				var count = 0;
+				angular.forEach($scope.game.players, function () {
+					count++;
+				});
+				console.log("players=", count);
+				return count;
+			}
+			return 0;
+		};
+
+		$scope.$watch('game.players', function (players) {
+			if (players) {
+				var count = 0;
+				angular.forEach(players, function () {
+					count++;
+				});
+				console.log("players=", count);
+				$scope.playersCount = count;
+			}
+		}, true);
 
 		$scope.prepareGame = function () {
 			$scope.game.status = 'PREPARING';
 		};
 
 		$scope.cancelGame = function () {
+			//$scope.players = {};
 			$scope.createGame();
 		};
 

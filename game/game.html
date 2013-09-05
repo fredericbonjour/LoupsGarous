@@ -22,10 +22,35 @@
 				<li class="active">Attente des joueurs</li>
 			</ol>
 
+			<div class="alert alert-info" ng-if="! userInfo.joinRef">
+				<h4>Une partie vient d'être créée !</h4>
+				Vous pouvez la rejoindre !
+			</div>
+			<div class="alert alert-success" ng-if="userInfo.joinRef">
+				<h4>Vous avez rejoint la partie !</h4>
+				Le maître du jeu attend les autres joueurs...
+			</div>
+
 			<p>
-				<button type="button" class="btn btn-primary" ng-disabled="user.hasJoined" ng-click="joinGame()"><i class="icon-play"></i> Rejoindre</button>
-				<button type="button" class="btn btn-danger" ng-disabled="! user.hasJoined" ng-click="quitGame()"><i class="icon-stop"></i> Quitter</button>
+				<button type="button" class="btn btn-primary" ng-disabled="userInfo.joinRef" ng-click="joinGame()"><i class="icon-play"></i> Rejoindre</button>
+				<button type="button" class="btn btn-danger" ng-disabled="! userInfo.joinRef" ng-click="quitGame()"><i class="icon-stop"></i> Quitter</button>
 			</p>
+
+		</div>
+
+		<!-- Join game -->
+		<div ng-switch-when="PREPARING">
+
+			<ol class="breadcrumb">
+				<li><a href="#/">Accueil</a></li>
+				<li>Nouvelle partie</li>
+				<li class="active">Préparation</li>
+			</ol>
+
+			<div class="alert alert-info">
+				<h4>Préparation de la partie...</h4>
+				Le maître du jeu prépare la partie... Un peu de patience <i class="icon-smile"></i>
+			</div>
 
 		</div>
 

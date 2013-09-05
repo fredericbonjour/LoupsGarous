@@ -16,7 +16,7 @@
 
 
 
-    app.service('Loups', function (angularFire, $rootScope, $timeout, $location) {
+    app.service('Loups', function (angularFire, angularFireCollection, $rootScope, $timeout, $location) {
 
 	    var firebase, auth, currentPath = $location.path();
 
@@ -60,6 +60,10 @@
 		    return bind($scope, name, 'users/' + $rootScope.user.id);
 	    }
 
+	    function bindCollection (path, callback) {
+		    return angularFireCollection(new Firebase(FIREBASE_URL + path), callback);
+	    }
+
 	    function login (user, pass) {
 		    auth.login('password', {
 			    email : user,
@@ -76,6 +80,7 @@
 
 			bind : bind,
 			bindUser : bindUser,
+			bindCollection : bindCollection,
 
 			login : login,
 
