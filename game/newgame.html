@@ -1,44 +1,85 @@
-<div class="view-newgame">
+<div class="view-newgame" ng-controller="NewGameController">
 
-	<ol class="breadcrumb">
-		<li><a href="#/">Accueil</a></li>
-		<li class="active">Nouvelle partie</li>
-	</ol>
+	<div class="col-md-3">
+		<ul class="nav nav-pills nav-stacked">
+			<li><a href="javascript:;" ng-click="createGame()">Ouvrir la salle</a></li>
+		</ul>
 
-	<div class="page-header">
-		<h1>Créer une nouvelle partie</h1>
+		Joueurs présents :
+		<div ng-repeat="player in game.players" ff-user="player.user"></div>
 	</div>
 
-	<form role="form" novalidate="" ng-submit="createGame()" name="form" class="form-horizontal">
+	<div class="col-md-9" ng-switch="game.status">
 
-		<fieldset>
-			<legend>Paramètres</legend>
+		<div ng-switch-when="WAITING">
+			<ol class="breadcrumb">
+				<li><a href="#/">Accueil</a></li>
+				<li>Nouvelle partie</li>
+				<li class="active">Attente des joueurs</li>
+			</ol>
 
-			<div class="form-group">
-				<label class="control-label col-lg-2" for="playersCountInput">Joueurs</label>
-				<div class="col-lg-1">
-					<input type="number" class="form-control" ng-model="playersCount" id="playersCountInput"/>
-				</div>
-			</div>
+			<p><strong>En attente des joueurs...</strong></p>
+			<p>
+				Dès que tous les joueurs sont là, vous pouvez <strong>Fermer la salle</strong>
+				et configurer la partie.
+			</p>
+			<button type="button" class="btn btn-success" ng-click="prepareGame()">Fermer la salle</button>
+		</div>
 
-			<div class="form-group">
-				<label class="control-label col-lg-2">Temps de jeu</label>
-				<div class="col-lg-2">
-					<input type="number" class="form-control" ng-model="dayTime" placeholder="Jour"/>
-				</div>
-				<div class="col-lg-2">
-					<input type="number" class="form-control" ng-model="nightTime" placeholder="Nuit"/>
-				</div>
-			</div>
 
-		</fieldset>
+		<div ng-switch-when="PREPARING">
+			<ol class="breadcrumb">
+				<li><a href="#/">Accueil</a></li>
+				<li>Nouvelle partie</li>
+				<li class="active">Préparation</li>
+			</ol>
 
-		<fieldset>
-			<legend>Personnages <span class="badge">{{ selectedChars.length|number }}</span></legend>
+			<p>
+				<button type="button" class="btn btn-danger" ng-click="cancelGame()">Annuler la partie</button>
+			</p>
 
-			<div ff-characters-list ng-model="selectedChars"></div>
-		</fieldset>
+			<form role="form" novalidate="" ng-submit="createGame()" name="form" class="form-horizontal">
 
-	</form>
+				<fieldset>
+					<legend>Paramètres</legend>
+
+					<div class="form-group">
+						<label class="control-label col-lg-2" for="playersCountInput">Joueurs</label>
+						<div class="col-lg-1">
+							<input type="number" class="form-control" ng-model="playersCount" id="playersCountInput"/>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="control-label col-lg-2">Temps de jeu</label>
+						<div class="col-lg-2">
+							<input type="number" class="form-control" ng-model="dayTime" placeholder="Jour"/>
+						</div>
+						<div class="col-lg-2">
+							<input type="number" class="form-control" ng-model="nightTime" placeholder="Nuit"/>
+						</div>
+					</div>
+
+				</fieldset>
+
+				<!--fieldset>
+					<legend>Personnages <span class="badge">{{ selectedChars.length|number }}</span></legend>
+
+					<div ff-characters-list ng-model="selectedChars"></div>
+				</fieldset-->
+
+			</form>
+		</div><!-- end game.status == F -->
+
+
+		<div ng-switch-when="RUNNING">
+			<p>
+				La partie est en cours...
+			</p>
+			<button type="button" class="btn btn-danger" ng-click="stopGame()">Arrêter la partie</button>
+		</div>
+
+
+	</div>
 
 </div>

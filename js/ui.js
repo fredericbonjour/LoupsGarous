@@ -52,8 +52,6 @@
 	 */
 	app.directive('ffMessage', function (Loups, $rootScope, $sce)
 	{
-		Loups.bind($rootScope, 'users', 'users');
-
 		return {
 			'restrict' : 'A',
 			'template' :
@@ -117,7 +115,6 @@
 	});
 
 
-
 	app.directive('ffCharacter', function ()
 	{
 		return {
@@ -136,5 +133,33 @@
 			}
 		}
 	});
+
+
+	app.directive('ffUser', function ($rootScope)
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div class="media">' +
+					'<a class="pull-left" href="#">' +
+						'<img class="media-object" style="width:20px;height:20px;" ng-src="images/avatars/{{ users[userId].avatar }}">' +
+					'</a>' +
+					'<div class="media-body">' +
+						'<h4 class="media-heading">{{ users[userId].name }}</h4>' +
+					'</div>' +
+				'</div>',
+
+			'replace'  : true,
+			'scope' : {
+				userId : '=ffUser'
+			},
+
+			'link' : function (scope, iElement, iAttrs, ctrl)
+			{
+				scope.users = $rootScope.users;
+			}
+		}
+	});
+
 
 })(moment);

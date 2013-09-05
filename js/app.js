@@ -24,37 +24,40 @@
 	    auth = new FirebaseSimpleLogin(firebase, function(error, user) {
 		    $timeout(function () {
 			    if (error) {
-				    console.log("Service: user error");
-				    $rootScope.user = null;
-				    $location.path('/login');
-			    }
-			    else if (user) {
-				    console.log("Service: user logged in!");
-				    $rootScope.user = user;
-				    $location.path(currentPath);
-				    bindUser($rootScope, 'userInfo');
-			    }
-			    else {
-				    console.log("Service: user not logged in.");
-				    $rootScope.user = null;
-				    $location.path('/login');
+					console.log("Service: user error");
+					$rootScope.user = null;
+					$location.path('/login');
+				}
+				else if (user) {
+					console.log("Service: user logged in!");
+					$rootScope.user = user;
+					bindUser($rootScope, 'userInfo').then(function () {
+					    $location.path(currentPath);
+					});
+				}
+				else {
+					console.log("Service: user not logged in.");
+					$rootScope.user = null;
+					$location.path('/login');
 			    }
 		    });
 	    });
 
-	    $rootScope.$watch('userInfo', function (info) {
-		    if (info && $rootScope) {
-			    angular.extend($rootScope.user, info);
+		$rootScope.$watch('userInfo', function (info) {
+			if (info && $rootScope) {
+				angular.extend($rootScope.user, info);
 		    }
-	    }, true);
+		}, true);
+
+	    bind($rootScope, 'users', 'users');
 
 	    function bind ($scope, name, path) {
 		    var ref = path ? firebase.child(path) : firebase;
-		    angularFire(ref, $scope, name);
+		    return angularFire(ref, $scope, name);
 	    }
 
 	    function bindUser ($scope, name) {
-		    bind($scope, name, 'users/' + $rootScope.user.id);
+		    return bind($scope, name, 'users/' + $rootScope.user.id);
 	    }
 
 	    function login (user, pass) {
