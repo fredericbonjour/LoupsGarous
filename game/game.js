@@ -5,49 +5,48 @@
 
 	app.controller('GameController', function (LG, $scope, $rootScope) {
 		console.log("GameController");
-		if (LG.checkLogin()) {
 
-			// Bindings
-			$scope.game = {};
-			LG.bind($scope, 'game', 'game');
-			$scope.messages = LG.bindCollection('game/messages');
-			$scope.players = LG.bindCollection('game/players');
+		// Bindings
+		$scope.game = {};
+		LG.bind($scope, 'game', 'game');
+		$scope.messages = LG.bindCollection('game/messages');
+		$scope.players = LG.bindCollection('game/players');
 
-			$scope.addMessage = function () {
-				$scope.messages.add({
-					sender: $rootScope.user.id,
-					body: $scope.msg,
-					date: new Date().getTime()
-				});
-				$scope.msg = "";
-			};
+		$scope.addMessage = function () {
+			$scope.messages.add({
+				sender: $rootScope.user.id,
+				body: $scope.msg,
+				date: new Date().getTime()
+			});
+			$scope.msg = "";
+		};
 
-			$scope.joinGame = function () {
-				var joinRef = $scope.players.add({
-					'user'   : $rootScope.user.id,
-					'status' : 'ALIVE'
-				});
-				console.log("Join id: ", joinRef.name());
-				$rootScope.userInfo.joinRef = joinRef.name();
-			};
+		$scope.joinGame = function () {
+			var joinRef = $scope.players.add({
+				'user'   : $rootScope.user.id,
+				'status' : 'ALIVE'
+			});
+			console.log("Join id: ", joinRef.name());
+			$rootScope.userInfo.joinRef = joinRef.name();
+		};
 
-			$scope.quitGame = function () {
-				$scope.players.remove($rootScope.userInfo.joinRef);
-				delete $rootScope.userInfo.joinRef;
-			};
+		$scope.quitGame = function () {
+			$scope.players.remove($rootScope.userInfo.joinRef);
+			delete $rootScope.userInfo.joinRef;
+		};
 
-			$scope.$watch('game.status', function (status, previous) {
-				if (previous === 'PREPARING' && status === 'WAITING') {
-					$scope.quitGame();
-				}
-				else if (status === 'RUNNING') {
-					console.log("game started");
-					console.log("joinRef=", $rootScope.user.joinRef);
-					var player = $scope.players.getByName($rootScope.user.joinRef);
-					$scope.me = LG.characterById(player.role);
-				}
-			}, true);
-		}
+		$scope.$watch('game.status', function (status, previous) {
+			if (previous === 'PREPARING' && status === 'WAITING') {
+				$scope.quitGame();
+			}
+			else if (status === 'RUNNING') {
+				console.log("game started");
+				console.log("joinRef=", $rootScope.user.joinRef);
+				var player = $scope.players.getByName($rootScope.user.joinRef);
+				$scope.me = LG.characterById(player.role);
+			}
+		}, true);
+
 	});
 
 

@@ -11,7 +11,7 @@
 }
 
 
-[ff-message] {
+[lg-message] {
 	padding: 5px 10px;
 	margin: 5px 0;
 	border-radius: 4px;
@@ -19,29 +19,29 @@
 	border: 1px solid rgba(0,0,0,0.1);
 }
 
-[ff-message].me {
+[lg-message].me {
 	background: #eeeeee;
 }
 
-[ff-message] .content {
+[lg-message] .content {
 	font-weight: bold;
 }
 
-[ff-message] .sender {
+[lg-message] .sender {
 
 }
 
 
 /* Characters */
 
-[ff-character] {
+[lg-character] {
 	display: block;
 	margin: 10px 0;
 	transition: color ease 0.2s;
 	position: relative;
 }
 
-[ff-character] .count {
+[lg-character] .count {
 	position: absolute;
 	left: 106px;
 	top: 0px;
@@ -59,15 +59,15 @@
 }
 
 
-[ff-character].selected {
+[lg-character].selected {
 	color: #0088CC;
 }
 
-[ff-character].selected img {
+[lg-character].selected img {
 	border-color: #0088CC;
 }
 
-[ff-character] img {
+[lg-character] img {
 	border: 8px solid #444444;
 	border-radius: 4px 4px 4px 4px;
 	transition: border-color ease-in 0.2s;
@@ -75,12 +75,12 @@
 	margin-right: 10px;
 }
 
-[ff-character] figcaption {
+[lg-character] figcaption {
 	font-size: 120%;
 	font-family: "Times New Roman";
 }
 
-[ff-character] figcaption h4 {
+[lg-character] figcaption h4 {
 	font-size: 140%;
 	font-family: "Times New Roman";
 	font-style: italic;

@@ -1,83 +1,70 @@
-(function() {
+(function(Firebase) {
 
-	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]);
+	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]),
+		firebaseRef = new Firebase(LG_FIREBASE_URL);
+
 
 	app.config(function($routeProvider)
 	{
 		$routeProvider
 			.when('/login', { templateUrl: 'user/login.html' })
-			.when('/profile', { templateUrl: 'user/profile.html' })
-			.when('/game', { templateUrl: 'game/game.html' })
-			.when('/newgame', { templateUrl: 'game/newgame.html' })
+			.when('/profile', { templateUrl: 'user/profile.html', authRequired: true })
+			.when('/game', { templateUrl: 'game/game.html', authRequired: true })
+			.when('/new-game', { templateUrl: 'game/new-game.html', authRequired: true })
 			.otherwise({ redirectTo: '/game' });
 	});
 
 
+	app.run(function (angularFireAuth, $rootScope) {
+		angularFireAuth.initialize(firebaseRef, {
+			'scope' : $rootScope,
+			'path': '/login',
+			'name' : 'user'
+		});
+	});
 
-    app.service('LG', function (angularFire, angularFireCollection, $rootScope, $timeout, $location) {
 
-	    var firebase, auth, currentPath = $location.path();
-
-	    firebase = new Firebase(LG_FIREBASE_URL);
-	    auth = new FirebaseSimpleLogin(firebase, function(error, user) {
-		    $timeout(function () {
-			    if (error) {
-					console.log("Service: user error");
-					$rootScope.user = null;
-					$location.path('/login');
-				}
-				else if (user) {
-					console.log("Service: user logged in!");
-					$rootScope.user = user;
-					bindUser($rootScope, 'userInfo').then(function () {
-					    $location.path(currentPath);
-					});
-				}
-				else {
-					console.log("Service: user not logged in.");
-					$rootScope.user = null;
-					$location.path('/login');
-			    }
-		    });
-	    });
+	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location) {
 
 		$rootScope.$watch('userInfo', function (info) {
 			if (info && $rootScope) {
 				angular.extend($rootScope.user, info);
-		    }
+			}
 		}, true);
 
-	    bind($rootScope, 'users', 'users');
+		bind($rootScope, 'allUsers', 'users');
 
-	    function bind ($scope, name, path) {
-		    var ref = path ? firebase.child(path) : firebase;
-		    return angularFire(ref, $scope, name);
-	    }
+		function bind ($scope, name, path) {
+			var ref = path ? firebaseRef.child(path) : firebaseRef;
+			return angularFire(ref, $scope, name);
+		}
 
-	    function bindUser ($scope, name) {
-		    return bind($scope, name, 'users/' + $rootScope.user.id);
-	    }
+		function bindUser ($scope, name) {
+			return bind($scope, name, 'users/' + $rootScope.user.id);
+		}
 
-	    function bindCollection (path, callback) {
-		    return angularFireCollection(new Firebase(LG_FIREBASE_URL + path), callback);
-	    }
+		function bindCollection (path, callback) {
+			return angularFireCollection(new Firebase(LG_FIREBASE_URL + path), callback);
+		}
 
-	    function login (user, pass) {
-		    auth.login('password', {
-			    email : user,
-			    password : pass
-		    });
-	    }
+		function login (user, pass) {
+			return angularFireAuth.login('password', {
+				email : user,
+				password : pass
+			});
+		}
 
-	    function logout () {
-		    auth.logout();
-	    }
+		function logout () {
+			angularFireAuth.logout();
+			$location.path('/login');
+		}
 
-	    // Public API
+		//
+		// Public API
+		//
 
 		return {
 
-			firebase : firebase,
 			user : $rootScope.user,
 
 			bind : bind,
@@ -85,14 +72,6 @@
 			bindCollection : bindCollection,
 
 			login : login,
-
-			checkLogin : function () {
-				if (! $rootScope.user) {
-					$location.path('/login');
-					return false;
-				}
-				return true;
-			},
 
 			characters : [
 				{
@@ -153,4 +132,4 @@
 	});
 
 
-})();
+})(Firebase);

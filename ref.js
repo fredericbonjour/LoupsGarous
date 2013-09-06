@@ -1,1 +1,1 @@
-LG_LG_FIREBASE_URL='https://ff-loups.firebaseio.com/';
+LG_FIREBASE_URL='https://ff-loups.firebaseio.com/';
