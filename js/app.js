@@ -1,7 +1,5 @@
 (function() {
 
-	var FIREBASE_URL = 'https://ff-loups.firebaseio.com/';
-
 	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]);
 
 	app.config(function($routeProvider)
@@ -16,11 +14,11 @@
 
 
 
-    app.service('Loups', function (angularFire, angularFireCollection, $rootScope, $timeout, $location) {
+    app.service('LG', function (angularFire, angularFireCollection, $rootScope, $timeout, $location) {
 
 	    var firebase, auth, currentPath = $location.path();
 
-	    firebase = new Firebase(FIREBASE_URL);
+	    firebase = new Firebase(LG_FIREBASE_URL);
 	    auth = new FirebaseSimpleLogin(firebase, function(error, user) {
 		    $timeout(function () {
 			    if (error) {
@@ -61,7 +59,7 @@
 	    }
 
 	    function bindCollection (path, callback) {
-		    return angularFireCollection(new Firebase(FIREBASE_URL + path), callback);
+		    return angularFireCollection(new Firebase(LG_FIREBASE_URL + path), callback);
 	    }
 
 	    function login (user, pass) {
@@ -71,7 +69,11 @@
 		    });
 	    }
 
-		// Public API
+	    function logout () {
+		    auth.logout();
+	    }
+
+	    // Public API
 
 		return {
 
@@ -96,7 +98,7 @@
 				{
 					'id' : 'loup',
 					'name' : 'loup',
-					'desc' : 'Chaque nuit, vous voter pour dévorer un villageois. Le jour, vous masquer votre identité pour échapper à la vindicte populaire. Vous gagnez si tous les villageois sont tués.',
+					'desc' : 'Chaque nuit, vous votez pour dévorer un villageois. Le jour, vous masquer votre identité pour échapper à la vindicte populaire. Vous gagnez si tous les villageois sont tués.',
 					'type' : 'L',
 					'multiple' : true
 				},
@@ -130,18 +132,24 @@
 					}
 				}
 				return null;
-			}
+			},
+
+			logout : logout
 		};
 
 	});
 
 
-	app.controller('NavBarController', function (Loups, $scope, $rootScope) {
+	app.controller('NavBarController', function (LG, $scope, $rootScope) {
 		$rootScope.$watch('user', function (user, old) {
 			if (user) {
-				Loups.bindUser($scope, 'userInfo');
+				LG.bindUser($scope, 'userInfo');
 			}
 		}, true);
+
+		$scope.logout = function () {
+			LG.logout();
+		};
 	});
 
 

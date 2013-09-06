@@ -3,15 +3,15 @@
 	var app = angular.module("LoupsGarous");
 
 
-	app.controller('GameController', function (Loups, $scope, $rootScope) {
+	app.controller('GameController', function (LG, $scope, $rootScope) {
 		console.log("GameController");
-		if (Loups.checkLogin()) {
+		if (LG.checkLogin()) {
 
 			// Bindings
 			$scope.game = {};
-			Loups.bind($scope, 'game', 'game');
-			$scope.messages = Loups.bindCollection('game/messages');
-			$scope.players = Loups.bindCollection('game/players');
+			LG.bind($scope, 'game', 'game');
+			$scope.messages = LG.bindCollection('game/messages');
+			$scope.players = LG.bindCollection('game/players');
 
 			$scope.addMessage = function () {
 				$scope.messages.add({
@@ -44,18 +44,18 @@
 					console.log("game started");
 					console.log("joinRef=", $rootScope.user.joinRef);
 					var player = $scope.players.getByName($rootScope.user.joinRef);
-					$scope.me = Loups.characterById(player.role);
+					$scope.me = LG.characterById(player.role);
 				}
 			}, true);
 		}
 	});
 
 
-	app.controller('NewGameController', function (Loups, $scope) {
+	app.controller('NewGameController', function (LG, $scope) {
 
 		// Bindings
-		Loups.bind($scope, 'game', 'game');
-		Loups.bind($scope, 'users', 'users');
+		LG.bind($scope, 'game', 'game');
+		LG.bind($scope, 'users', 'users');
 
 		$scope.gameData = {};
 

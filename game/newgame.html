@@ -6,7 +6,7 @@
 		</ul>
 
 		<div ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></div>
-		<div ng-repeat="player in game.players" ff-user="player.user"></div>
+		<div ng-repeat="player in game.players" lg-user="player.user"></div>
 	</div>
 
 	<div class="col-md-9" ng-switch="game.status">
@@ -63,7 +63,7 @@
 
 			<form role="form" novalidate="" ng-submit="createGame()" name="form" class="form-horizontal">
 
-				<div ff-characters-list ng-model="gameData.selectedChars"></div>
+				<div lg-characters-list ng-model="gameData.selectedChars"></div>
 
 			</form>
 		</div><!-- end game.status == F -->

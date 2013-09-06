@@ -3,12 +3,12 @@
 	var app = angular.module("LoupsGarous");
 
 
-	app.controller('ProfileController', function (Loups, $scope, $rootScope, $location)
+	app.controller('ProfileController', function (LG, $scope, $rootScope)
 	{
 		console.log("ProfileController");
-		if (Loups.checkLogin()) {
+		if (LG.checkLogin()) {
 			$scope.userInfo = {};
-			Loups.bindUser($scope, 'userInfo');
+			LG.bindUser($scope, 'userInfo');
 			$scope.$watch('userInfo', function (info, old) {
 		        if (info !== old) {
 					$scope.profile = angular.copy(info);
@@ -26,12 +26,12 @@
     });
 
 
-	app.controller('LoginController', function ($scope, Loups)
+	app.controller('LoginController', function ($scope, LG)
 	{
 		console.log("LoginController");
 
 		$scope.login = function () {
-			Loups.login($scope.username, $scope.password);
+			LG.login($scope.username + '@lg.fruityfred.com', $scope.password);
 		};
 	});
 

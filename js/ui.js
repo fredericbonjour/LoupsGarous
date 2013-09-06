@@ -9,14 +9,14 @@
 	 * Usage:
 	 * <time ff-time-ago="<dateObject>"></time>
 	 */
-	app.directive('ffTimeAgo', function ($timeout)
+	app.directive('lgTimeAgo', function ($timeout)
 	{
 		var INTERVAL = 60*1000;
 
 		return {
 			'restrict' : 'A',
 			'scope' : {
-				'date' : '=ffTimeAgo'
+				'date' : '=lgTimeAgo'
 			},
 
 			'link' : function (scope, iElement)
@@ -50,7 +50,7 @@
 	 * Usage:
 	 * <div ff-message="<messageObject>"></div>
 	 */
-	app.directive('ffMessage', function (Loups, $rootScope, $sce)
+	app.directive('lgMessage', function (LG, $rootScope, $sce)
 	{
 		return {
 			'restrict' : 'A',
@@ -65,7 +65,7 @@
 				'</div>',
 
 			'scope' : {
-				'message' : '=ffMessage'
+				'message' : '=lgMessage'
 			},
 
 			'link' : function (scope)
@@ -85,7 +85,7 @@
 	});
 
 
-	app.directive('ffCharactersList', function (Loups)
+	app.directive('lgCharactersList', function (LG)
 	{
 		return {
 			'restrict' : 'A',
@@ -99,7 +99,7 @@
 					'count' : 0,
 					'chars' : []
 				};
-				scope.characters = Loups.characters;
+				scope.characters = LG.characters;
 
 				scope.$watch('characters', function (chars, old) {
 					selected.count = 0;
@@ -117,7 +117,7 @@
 	});
 
 
-	app.directive('ffCharacter', function ()
+	app.directive('lgCharacter', function ()
 	{
 		return {
 			'restrict' : 'A',
@@ -136,7 +136,7 @@
 				'</figure>',
 			'replace'  : true,
 			'scope' : {
-				character : '=ffCharacter',
+				character : '=lgCharacter',
 				selectable : '@'
 			},
 
@@ -148,7 +148,7 @@
 	});
 
 
-	app.directive('ffUser', function ($rootScope)
+	app.directive('lgUser', function ($rootScope)
 	{
 		return {
 			'restrict' : 'A',
@@ -164,7 +164,7 @@
 
 			'replace'  : true,
 			'scope' : {
-				userId : '=ffUser'
+				userId : '=lgUser'
 			},
 
 			'link' : function (scope, iElement, iAttrs, ctrl)
