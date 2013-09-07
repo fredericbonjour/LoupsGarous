@@ -10,7 +10,7 @@
 			.when('/login', { templateUrl: 'user/login.html' })
 			.when('/profile', { templateUrl: 'user/profile.html', authRequired: true })
 			.when('/game', { templateUrl: 'game/game.html', authRequired: true })
-			.when('/new-game', { templateUrl: 'game/new-game.html', authRequired: true })
+			.when('/admin', { templateUrl: 'game/admin.html', authRequired: true })
 			.otherwise({ redirectTo: '/game' });
 	});
 
@@ -40,7 +40,10 @@
 
 	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location) {
 
+		// Bindings
 		bind($rootScope, 'users', 'users');
+		bind($rootScope, 'game', 'game');
+
 
 		function bind ($scope, name, path) {
 			var ref = path ? firebaseRef.child(path) : firebaseRef;
@@ -79,8 +82,34 @@
 			bindCollection : bindCollection,
 
 			login : login,
+			logout : logout,
 
-			logout : logout
+			createGame : function () {
+				$rootScope.players = this.bindCollection('game/players', function () {
+					$rootScope.game.status = 'WAITING';
+				});
+			},
+
+			joinGame : function () {
+				$rootScope.$watch('players', function (players) {
+					if (players) {
+						var joinRef = $rootScope.players.add({
+							'user'   : $rootScope.user.id,
+							'status' : 'ALIVE',
+							'votes'  : 0
+						});
+						console.log("Join id: ", joinRef.name());
+						$rootScope.userInfo.joinRef = joinRef.name();
+					}
+				});
+				$rootScope.players = bindCollection('game/players');
+			},
+
+			quitGame : function () {
+				$rootScope.players.remove($rootScope.userInfo.joinRef);
+				delete $rootScope.userInfo.joinRef;
+			}
+
 		};
 
 	});

@@ -1,16 +1,10 @@
 <div class="view-game" ng-controller="GameController">
 
 	<div class="col-md-3">
-		<ul class="nav nav-pills nav-stacked">
-			<li>
-				<a href="#/new-game">
-					Administrateur
-				</a>
-			</li>
-		</ul>
-
-		<div ng-if="game.status == 'RUNNING' && userInfo.joinRef" lg-character="me"></div>
-
+		<div ng-if="game.status == 'RUNNING' && userInfo.joinRef">
+			<div lg-character="me"></div>
+			<div lg-players-poll=""></div>
+		</div>
 	</div>
 
 	<div class="col-md-9" ng-switch="game.status">
@@ -84,7 +78,7 @@
 					<div class="input-group">
 						<input type="text" ng-model="msg" class="form-control" placeholder="Message..."/>
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="submit">Go !</button>
+						<button class="btn btn-primary" ng-disabled="!msg" type="submit">Envoyer</button>
 					</span>
 					</div>
 				</div>

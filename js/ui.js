@@ -207,4 +207,19 @@
 	});
 
 
+	app.directive('lgPlayersPoll', function (LG)
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div ng-repeat="p in players">{{ users[p.user].name }}</div>',
+
+			'link' : function (scope, iElement, iAttrs, ngModel)
+			{
+				scope.players = LG.bindCollection('game/players');
+			}
+		}
+	});
+
+
 })(moment);

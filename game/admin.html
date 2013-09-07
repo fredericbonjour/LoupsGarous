@@ -1,11 +1,12 @@
 <div class="view-newgame" ng-controller="NewGameController">
 
 	<div class="col-md-3">
-		<ul class="nav nav-pills nav-stacked">
-			<li><a href="javascript:;" ng-click="createGame()">Ouvrir la salle</a></li>
-		</ul>
-
-		<div ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></div>
+		<p>
+			<a class="btn btn-default btn-block" href="#/game"><i class="icon-arrow-left"></i> Retourner au jeu</a>
+		</p>
+		<div class="alert alert-info">
+			<h4 style="margin-bottom:0; text-align: center;" ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></h4>
+		</div>
 		<div ng-repeat="player in game.players" lg-user="player.user"></div>
 	</div>
 
@@ -25,6 +26,7 @@
 			</p>
 
 			<div class="btn-toolbar">
+				<button type="button" class="btn btn-primary" ng-click="joinGame()">Rejoindre la partie</button>
 				<button type="button" class="btn btn-success" ng-click="prepareGame()"><i class="icon-ok"></i> Fermer la salle</button>
 			</div>
 		</div>
@@ -74,6 +76,13 @@
 				La partie est en cours...
 			</p>
 			<button type="button" class="btn btn-danger" ng-click="stopGame()">Arrêter la partie</button>
+		</div>
+
+		<div ng-switch-when="STOPPED">
+			<p>
+				La partie a été arrêtée.
+			</p>
+			<button type="button" class="btn btn-success" ng-click="createGame()">Démarrer une partie...</button>
 		</div>
 
 

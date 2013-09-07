@@ -2,6 +2,10 @@ body {
 	background: url(../images/bandeau.jpg) bottom center no-repeat fixed;
 }
 
+.navbar-nav .navbar-brand,
+.navbar-nav > li > a {
+	line-height: 32px;
+}
 
 /* Chat */
 
@@ -52,9 +56,12 @@ body {
 
 /* Characters */
 
+[lg-characters-list] .character {
+	margin: 10px 0;
+}
+
 .character {
 	display: block;
-	margin: 10px 0;
 	position: relative;
 	text-align: right;
 }

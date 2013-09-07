@@ -6,7 +6,6 @@
 	<title>test</title>
 
 	<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-	<link href="lib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
 	<link href="css/styles.css" rel="stylesheet" />
 
@@ -33,6 +32,18 @@
 		<div class="navbar-header">
 			<a class="navbar-brand" href="#/game"><img src="images/logo.png"/> Loups-Garous</a>
 		</div>
+
+
+		<ul class="nav navbar-nav">
+			<li class="dropdown">
+				<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+					Administrateur
+					<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="#/admin">Gérer la partie</a></li>
+				</ul>
+			</li>
+		</ul>
 
 		<ul class="nav navbar-nav navbar-right" ng-if="user">
 			<li class="dropdown">
