@@ -52,15 +52,21 @@
 	 */
 	app.directive('lgMessage', function (LG, $rootScope, $sce)
 	{
+		var previousSender = 0;
+
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<a class="pull-left" href="javascript:;">' +
-					'<img class="media-object" width="32px" height="32px" style="width:32px;height:32px;" ng-src="images/avatars/{{ users[message.sender].avatar }}">' +
+				'<a class="pull-left" href="javascript:;" ng-if="!sameSender">' +
+					'<img class="media-object" width="32px" height="32px" style="width:32px;height:32px;" ng-src="images/avatars/{{ sender.avatar }}">' +
 				'</a>' +
-				'<div class="media-body">' +
-					'<h4 class="media-heading">{{ users[message.sender].name }}</h4>' +
-					'<small class="pull-right text-muted"><time ff-time-ago="message.date"></time></small>' +
+				'<div class="media-body" ng-if="!sameSender">' +
+					'<h4 class="media-heading">{{ sender.name }}</h4>' +
+					'<small class="pull-right text-muted"><time lg-time-ago="message.date"></time></small>' +
+					'<div ng-bind-html="trustedBody"></div>' +
+				'</div>' +
+				'<div class="media-body" ng-if="sameSender">' +
+					'<small class="pull-right text-muted"><time lg-time-ago="message.date"></time></small>' +
 					'<div ng-bind-html="trustedBody"></div>' +
 				'</div>',
 
@@ -68,18 +74,23 @@
 				'message' : '=lgMessage'
 			},
 
-			'link' : function (scope)
+			'link' : function (scope, iElement)
 			{
-				scope.users = $rootScope.users;
-				scope.meId = $rootScope.user.id;
-				scope.$watch('message', function (message) {
-					if (message) {
-						scope.trustedBody = $sce.trustAsHtml(message.body
-							.replace(/[;:][D\)]/gi, '<i class="icon-smile"></i>')
-							.replace(/:[\(]/gi, '<i class="icon-frown"></i>')
-						);
-					}
-				});
+				scope.sender = $rootScope.users[scope.message.sender];
+				scope.trustedBody = $sce.trustAsHtml(scope.message.body
+					.replace(/[;:][D\)]/gi, '<i class="icon-smile"></i>')
+					.replace(/:[\(]/gi, '<i class="icon-frown"></i>')
+				);
+				console.log(previousSender, scope.message.sender);
+				scope.sameSender = previousSender === scope.message.sender;
+				if (scope.sameSender) {
+					iElement.addClass('same-sender');
+				}
+				console.log($rootScope.user.id, scope.message.sender);
+				if ($rootScope.user.id == scope.message.sender) {
+					iElement.addClass('me');
+				}
+				previousSender = scope.message.sender;
 			}
 		};
 	});

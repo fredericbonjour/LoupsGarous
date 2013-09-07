@@ -10,13 +10,11 @@
 	font-size: 16px;
 }
 
-
 [lg-message] {
 	padding: 5px 10px;
 	margin: 5px 0;
-	border-radius: 4px;
 	background: white;
-	border: 1px solid rgba(0,0,0,0.1);
+	border-top: 1px solid #EEEEEE;
 }
 
 [lg-message].me {
@@ -27,9 +25,24 @@
 	font-weight: bold;
 }
 
-[lg-message] .sender {
-
+[lg-message].same-sender .media-body {
+	padding-left: 42px;
 }
+
+[lg-message].same-sender {
+	border-top: none;
+	margin: 0;
+}
+
+[lg-message]:not(.same-sender) + [lg-message].same-sender {
+	margin-top: -10px;
+}
+
+[lg-message].me + [lg-message]:not(.me),
+[lg-message]:not(.me) + [lg-message].me {
+	border-top: none;
+}
+
 
 
 /* Characters */

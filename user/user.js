@@ -1,12 +1,12 @@
 (function() {
 
+	"use strict";
+
 	var app = angular.module("LoupsGarous");
 
 
 	app.controller('ProfileController', function (LG, $scope, $rootScope)
 	{
-		console.log("ProfileController");
-
 		$scope.userInfo = {};
 		LG.bindUser($scope, 'userInfo');
 		$scope.$watch('userInfo', function (info, old) {
@@ -28,9 +28,7 @@
 
 	app.controller('LoginController', function ($scope, $location, LG)
 	{
-		console.log("LoginController");
 		$scope.loggingIn = false;
-
 		$scope.login = function () {
 			$scope.loggingIn = true;
 			LG.login($scope.username + '@lg.fruityfred.com', $scope.password).then(function () {

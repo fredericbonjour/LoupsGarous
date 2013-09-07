@@ -71,11 +71,9 @@
 
 		</div>
 
-
 		<!-- Chat -->
 		<ul class="media-list messages">
-			<li class="media" ng-repeat="msg in game.messages" lg-message="msg">
-			</li>
+			<li class="media" ng-repeat="(key,msg) in game.messages" lg-message="msg"></li>
 		</ul>
 
 		<form name="form" novalidate="" ng-submit="addMessage()">

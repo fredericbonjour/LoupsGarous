@@ -1,4 +1,4 @@
-(function(Firebase) {
+(function (Firebase) {
 
 	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]),
 		firebaseRef = new Firebase(LG_FIREBASE_URL);
@@ -15,7 +15,21 @@
 	});
 
 
-	app.run(function (angularFireAuth, $rootScope) {
+	app.run(function (angularFire, angularFireAuth, $rootScope) {
+		console.log("app run");
+
+		$rootScope.$on('angularFireAuth:login', function (event, user) {
+			console.log("angularFireAuth:login: user=", user);
+			angularFire(firebaseRef.child('users/' + user.id), $rootScope, 'userInfo');
+		});
+
+		$rootScope.$watch('userInfo', function (info) {
+			console.log("watch userInfo: ", info);
+			if (info) {
+				angular.extend($rootScope.user, info);
+			}
+		}, true);
+
 		angularFireAuth.initialize(firebaseRef, {
 			'scope' : $rootScope,
 			'path': '/login',
@@ -26,13 +40,7 @@
 
 	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location) {
 
-		$rootScope.$watch('userInfo', function (info) {
-			if (info && $rootScope) {
-				angular.extend($rootScope.user, info);
-			}
-		}, true);
-
-		bind($rootScope, 'allUsers', 'users');
+		bind($rootScope, 'users', 'users');
 
 		function bind ($scope, name, path) {
 			var ref = path ? firebaseRef.child(path) : firebaseRef;
@@ -44,7 +52,7 @@
 		}
 
 		function bindCollection (path, callback) {
-			return angularFireCollection(new Firebase(LG_FIREBASE_URL + path), callback);
+			return angularFireCollection(firebaseRef.child(path), callback);
 		}
 
 		function login (user, pass) {
@@ -64,7 +72,6 @@
 		//
 
 		return {
-
 			user : $rootScope.user,
 
 			bind : bind,
@@ -72,46 +79,6 @@
 			bindCollection : bindCollection,
 
 			login : login,
-
-			characters : [
-				{
-					'id' : 'loup',
-					'name' : 'loup',
-					'desc' : 'Chaque nuit, vous votez pour dévorer un villageois. Le jour, vous masquer votre identité pour échapper à la vindicte populaire. Vous gagnez si tous les villageois sont tués.',
-					'type' : 'L',
-					'multiple' : true
-				},
-				{
-					'id' : 'vill',
-					'name' : 'villageois',
-					'desc' : "Vous n'avez pas de pouvoir particulier. Survivez aux loups pour remporter la victoire !",
-					'type' : 'V',
-					'multiple' : true
-				},
-				{
-					'id' : 'sorc',
-					'name' : 'sorcière',
-					'desc' : "Vous disposez de deux potions magiques : une potion de vie pour ressuciter un joueur tué par les loups-garous, et une potion de mort pour éliminer un joueur. Survivez aux loups pour remporter la victoire !",
-					'type' : 'V',
-					'multiple' : false
-				},
-				{
-					'id' : 'voya',
-					'name' : 'voyante',
-					'desc' : "Chaque nuit, vous aurez l'occasion de découvrir l'identité d'un joueur de votre choix. Survivez aux loups pour remporter la victoire !",
-					'type' : 'V',
-					'multiple' : false
-				}
-			],
-
-			characterById : function (id) {
-				for (var i=0 ; i<this.characters.length ; i++) {
-					if (this.characters[i].id === id) {
-						return this.characters[i];
-					}
-				}
-				return null;
-			},
 
 			logout : logout
 		};
