@@ -3,7 +3,7 @@
 	var app = angular.module("LoupsGarous");
 
 
-	app.controller('GameController', function (LG, $scope, $rootScope) {
+	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope) {
 		console.log("GameController");
 
 		// Bindings
@@ -43,14 +43,13 @@
 				console.log("game started");
 				console.log("joinRef=", $rootScope.user.joinRef);
 				var player = $scope.players.getByName($rootScope.user.joinRef);
-				$scope.me = LG.characterById(player.role);
+				$scope.me = lgCharacters.characterById(player.role);
 			}
 		}, true);
-
 	});
 
 
-	app.controller('NewGameController', function (LG, $scope) {
+	app.controller('NewGameController', function (LG, $scope, $location) {
 
 		// Bindings
 		LG.bind($scope, 'game', 'game');
@@ -113,6 +112,7 @@
 		$scope.beginGame = function () {
 			assignCharacters();
 			$scope.game.status = 'RUNNING';
+			$location.path('/game');
 		};
 	});
 

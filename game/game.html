@@ -4,10 +4,13 @@
 		<ul class="nav nav-pills nav-stacked">
 			<li>
 				<a href="#/new-game">
-					Nouvelle partie
+					Administrateur
 				</a>
 			</li>
 		</ul>
+
+		<div ng-if="game.status == 'RUNNING' && userInfo.joinRef" lg-character="me"></div>
+
 	</div>
 
 	<div class="col-md-9" ng-switch="game.status">
@@ -66,8 +69,6 @@
 				<h4>La partie a commencé !</h4>
 				Bon jeu et... bonne chance !
 			</div>
-
-			<div lg-character="me"></div>
 
 		</div>
 

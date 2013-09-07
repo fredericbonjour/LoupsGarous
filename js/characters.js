@@ -8,7 +8,7 @@
 			{
 				'id' : 'loup',
 				'name' : 'loup',
-				'desc' : 'Chaque nuit, vous votez pour dévorer un villageois. Le jour, vous masquer votre identité pour échapper à la vindicte populaire. Vous gagnez si tous les villageois sont tués.',
+				'desc' : 'Chaque nuit, vous votez pour dévorer un villageois. Le jour, vous masquez votre identité pour échapper à la vindicte populaire. Vous gagnez si tous les villageois sont tués.',
 				'type' : 'L',
 				'multiple' : true
 			},

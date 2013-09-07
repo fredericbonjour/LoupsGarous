@@ -1,3 +1,8 @@
+body {
+	background: url(../images/bandeau.jpg) bottom center no-repeat fixed;
+}
+
+
 /* Chat */
 
 .media-list.messages img.media-object {
@@ -47,14 +52,18 @@
 
 /* Characters */
 
-[lg-character] {
+.character {
 	display: block;
 	margin: 10px 0;
-	transition: color ease 0.2s;
 	position: relative;
+	text-align: right;
 }
 
-[lg-character] .count {
+.character.select {
+	text-align: left;
+}
+
+.character.select .count {
 	position: absolute;
 	left: 106px;
 	top: 0px;
@@ -71,31 +80,33 @@
 	border-radius: 6px;
 }
 
-
-[lg-character].selected {
+.character.select.selected {
 	color: #0088CC;
 }
 
-[lg-character].selected img {
+.character.select.selected img {
 	border-color: #0088CC;
 }
 
-[lg-character] img {
-	border: 8px solid #444444;
-	border-radius: 4px 4px 4px 4px;
-	transition: border-color ease-in 0.2s;
+.character.select img {
 	float: left;
 	margin-right: 10px;
 }
 
-[lg-character] figcaption {
+.character.select figcaption {
 	font-size: 120%;
 	font-family: "Times New Roman";
 }
 
-[lg-character] figcaption h4 {
+.character.select figcaption h4 {
 	font-size: 140%;
 	font-family: "Times New Roman";
 	font-style: italic;
 	text-transform: capitalize;
 }
+
+img.card {
+	border: 8px solid #444444;
+	border-radius: 4px 4px 4px 4px;
+}
+

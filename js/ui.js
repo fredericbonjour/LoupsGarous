@@ -81,12 +81,10 @@
 					.replace(/[;:][D\)]/gi, '<i class="icon-smile"></i>')
 					.replace(/:[\(]/gi, '<i class="icon-frown"></i>')
 				);
-				console.log(previousSender, scope.message.sender);
-				scope.sameSender = previousSender === scope.message.sender;
+				scope.sameSender = previousSender == scope.message.sender;
 				if (scope.sameSender) {
 					iElement.addClass('same-sender');
 				}
-				console.log($rootScope.user.id, scope.message.sender);
 				if ($rootScope.user.id == scope.message.sender) {
 					iElement.addClass('me');
 				}
@@ -96,12 +94,12 @@
 	});
 
 
-	app.directive('lgCharactersList', function (LG)
+	app.directive('lgCharactersList', function (lgCharacters)
 	{
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<div ng-repeat="char in characters" ff-character="char" selectable="true"></div>',
+				'<div ng-repeat="char in characters" lg-character-select="char"></div>',
 			'require' : 'ngModel',
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
@@ -110,7 +108,7 @@
 					'count' : 0,
 					'chars' : []
 				};
-				scope.characters = LG.characters;
+				scope.characters = lgCharacters.characters;
 
 				scope.$watch('characters', function (chars, old) {
 					selected.count = 0;
@@ -128,18 +126,18 @@
 	});
 
 
-	app.directive('lgCharacter', function ()
+	app.directive('lgCharacterSelect', function ()
 	{
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<figure ng-click="toggleSelect()" class="clearfix" ng-class="{\'selected\': character.count > 0}">' +
-					'<img ng-src="images/cartes/{{ character.id }}.png"/>' +
+				'<figure ng-click="toggleSelect()" class="character clearfix select" ng-class="{\'selected\': character.count > 0}">' +
+					'<img class="card" ng-src="images/cartes/{{ character.id }}.png"/>' +
 					'<figcaption>' +
 						'<span ng-show="character.count > 0" class="count">{{ character.count }}</span>' +
 						'<h4>{{ character.name }}</h4>' +
 						'<p>{{ character.desc }}</p>' +
-						'<div class="btn-group" ng-if="selectable">' +
+						'<div class="btn-group">' +
 							'<button class="btn btn-default" type="button" ng-disabled="character.count > 0 && ! character.multiple" ng-click="character.count = character.count+1"><i class="icon-plus"></i></button>' +
 							'<button class="btn btn-default" type="button" ng-disabled="! character.count" ng-click="character.count = character.count-1"><i class="icon-minus"></i></button>' +
 						'</div>' +
@@ -147,13 +145,36 @@
 				'</figure>',
 			'replace'  : true,
 			'scope' : {
-				character : '=lgCharacter',
-				selectable : '@'
+				character : '=lgCharacterSelect'
 			},
 
 			'link' : function (scope, iElement, iAttrs, ctrl)
 			{
 				scope.character.count = 0;
+			}
+		}
+	});
+
+
+	app.directive('lgCharacter', function ()
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<figure class="character clearfix">' +
+					'<img class="card" ng-src="images/cartes/{{ character.id }}.png"/>' +
+					'<figcaption>' +
+					'<h4>{{ character.name }}</h4>' +
+					'<p>{{ character.desc }}</p>' +
+					'</figcaption>' +
+					'</figure>',
+			'replace'  : true,
+			'scope' : {
+				character : '=lgCharacter'
+			},
+
+			'link' : function (scope, iElement, iAttrs, ctrl)
+			{
 			}
 		}
 	});
