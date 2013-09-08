@@ -1,0 +1,85 @@
+@font-face {
+	font-family: 'icomoon';
+	src:url('icomoon.eot');
+	src:url('icomoon.eot?#iefix') format('embedded-opentype'),
+	url('icomoon.woff') format('woff'),
+	url('icomoon.ttf') format('truetype'),
+	url('icomoon.svg#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Use the following CSS code if you want to use data attributes for inserting your icons */
+[data-icon]:before {
+	font-family: 'icomoon';
+	content: attr(data-icon);
+	speak: none;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Use the following CSS code if you want to have a class per icon */
+/*
+Instead of a list of all class selectors,
+you can use the generic selector below, but it's slower:
+[class*="icon-smiley-"] {
+*/
+.icon-smiley-happy, .icon-smiley-smiley, .icon-smiley-tongue, .icon-smiley-sad, .icon-smiley-wink, .icon-smiley-grin, .icon-smiley-cool, .icon-smiley-angry, .icon-smiley-evil, .icon-smiley-wondering, .icon-smiley-neutral, .icon-smiley-confused, .icon-smiley-shocked, .icon-smiley-pacman, .icon-smiley-heart {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+.icon-smiley-happy:before {
+	content: "\e000";
+}
+.icon-smiley-smiley:before {
+	content: "\e001";
+}
+.icon-smiley-tongue:before {
+	content: "\e002";
+}
+.icon-smiley-sad:before {
+	content: "\e003";
+}
+.icon-smiley-wink:before {
+	content: "\e004";
+}
+.icon-smiley-grin:before {
+	content: "\e005";
+}
+.icon-smiley-cool:before {
+	content: "\e006";
+}
+.icon-smiley-angry:before {
+	content: "\e007";
+}
+.icon-smiley-evil:before {
+	content: "\e008";
+}
+.icon-smiley-wondering:before {
+	content: "\e009";
+}
+.icon-smiley-neutral:before {
+	content: "\e00a";
+}
+.icon-smiley-confused:before {
+	content: "\e00b";
+}
+.icon-smiley-shocked:before {
+	content: "\e00c";
+}
+.icon-smiley-pacman:before {
+	content: "\e00d";
+}
+.icon-smiley-heart:before {
+	content: "\e00e";
+}

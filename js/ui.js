@@ -50,7 +50,7 @@
 	 * Usage:
 	 * <div ff-message="<messageObject>"></div>
 	 */
-	app.directive('lgMessage', function (LG, $rootScope, $sce)
+	app.directive('lgMessage', function (LG, $rootScope, $sce, lgSmileys)
 	{
 		var previousSender = 0;
 
@@ -77,10 +77,7 @@
 			'link' : function (scope, iElement)
 			{
 				scope.sender = $rootScope.users[scope.message.sender];
-				scope.trustedBody = $sce.trustAsHtml(scope.message.body
-					.replace(/[;:][D\)]/gi, '<i class="icon-smile"></i>')
-					.replace(/:[\(]/gi, '<i class="icon-frown"></i>')
-				);
+				scope.trustedBody = $sce.trustAsHtml(lgSmileys.parse(scope.message.body));
 				scope.sameSender = previousSender == scope.message.sender;
 				if (scope.sameSender) {
 					iElement.addClass('same-sender');

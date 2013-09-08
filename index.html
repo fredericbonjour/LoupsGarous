@@ -8,6 +8,7 @@
 	<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
 	<link href="css/styles.css" rel="stylesheet" />
+	<link href="css/smileys/smileys.css" rel="stylesheet" />
 
 	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 
@@ -34,10 +35,10 @@
 		</div>
 
 
-		<ul class="nav navbar-nav">
+		<ul class="nav navbar-nav" ng-if="user && user.admin">
 			<li class="dropdown">
 				<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-					Administrateur
+					Maître du jeu
 					<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="#/admin">Gérer la partie</a></li>

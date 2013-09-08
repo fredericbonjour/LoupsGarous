@@ -36,6 +36,36 @@
 			'name' : 'user'
 		});
 	});
+	
+	
+	app.service('lgSmileys', function () {
+		var smileys = {
+			'>:\\)' : 'evil',
+			'<3' : 'heart',
+			':\\-?D' : 'happy',
+			'xD' : 'happy',
+			':\\-?\\)' : 'smiley',
+			':\\-?P' : 'tongue',
+			':\\-?\\(' : 'sad',
+			';\\-?\\)' : 'wink',
+			'8\\-?[\\)D]' : 'cool',
+			'><' : 'angry',
+			':\\-?\\$' : 'wondering',
+			':\\-?\\|' : 'neutral',
+			':\\-?\/' : 'confused',
+			':\\-?O' : 'shocked'
+		};
+		return {
+			parse : function (input) {
+				angular.forEach(smileys, function (name, symbol) {
+					console.log("check smiley: ", name, symbol);
+					var regexp = new RegExp(symbol, "ig");
+					input = input.replace(regexp, ':' + name + ':');
+				});
+				return input.replace(/:([a-z]+):/g, '<i class="icon-smiley-$1"></i>');
+			}
+		};
+	});
 
 
 	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location) {
