@@ -29,7 +29,7 @@
 
 <body>
 
-	<nav class="navbar navbar-default" role="navigation" ng-controller="NavBarController">
+	<nav class="navbar navbar-default" ng-class="{'navbar-inverse': isNight()}" role="navigation" ng-controller="NavBarController">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="#/game"><img src="images/logo.png"/> Loups-Garous</a>
 		</div>

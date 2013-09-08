@@ -52,8 +52,6 @@
 	 */
 	app.directive('lgMessage', function (LG, $rootScope, $sce, lgSmileys)
 	{
-		var previousSender = 0;
-
 		return {
 			'restrict' : 'A',
 			'template' :
@@ -78,6 +76,7 @@
 			{
 				scope.sender = $rootScope.users[scope.message.sender];
 				scope.trustedBody = $sce.trustAsHtml(lgSmileys.parse(scope.message.body));
+				/* FIXME
 				scope.sameSender = previousSender == scope.message.sender;
 				if (scope.sameSender) {
 					iElement.addClass('same-sender');
@@ -86,9 +85,36 @@
 					iElement.addClass('me');
 				}
 				previousSender = scope.message.sender;
+				*/
 			}
 		};
 	});
+
+
+	/**
+	 *
+	 */
+	app.directive('lgMessageList', function ()
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<ul class="media-list messages">' +
+					'<li class="media" ng-repeat="msg in messages" lg-message="msg" ></li>' +
+				'</ul>',
+
+			'scope' : {
+				'messages' : '=lgMessageList'
+			},
+
+			'link' : function (scope, iElement)
+			{
+			}
+		};
+	});
+
+
+
 
 
 	app.directive('lgCharactersList', function (lgCharacters)
@@ -209,12 +235,47 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<div ng-repeat="p in players">{{ users[p.user].name }}</div>',
+				'<button ng-click="toggleVote(p)" class="btn btn-block" ng-class="{\'btn-primary\': p.$id==lastVoteId}" type="button" ng-repeat="(name,p) in players">{{ users[p.user].name }} <span class="badge">{{ p.votes }}</span></button>',
+			scope : true,
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
 			{
+				scope.lastVoteId = null;
+
 				scope.players = LG.bindCollection('game/players');
+
+				scope.toggleVote = function (player) {
+					if (scope.lastVoteId) {
+						if (player.$id === scope.lastVoteId) {
+							player.votes--;
+							scope.players.update(player);
+							scope.lastVoteId = null;
+							return;
+						}
+						else {
+							scope.players.getByName(scope.lastVoteId).votes--;
+							scope.players.update(scope.lastVoteId);
+						}
+					}
+					player.votes++;
+					scope.players.update(player);
+					scope.lastVoteId = player.$id;
+				};
 			}
+		}
+	});
+
+
+	app.directive('lgGameMasterUi', function () {
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div class="well">' +
+					'<h4>Maître du jeu</h4>' +
+					'<button type="button" class="btn btn-danger btn-block" ng-click="gameMaster.stopGame()">Arrêter la partie</button>' +
+					'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="gameMaster.stopNight()"><i class="icon-sun"></i> Le jour se lève !</button>' +
+					'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="gameMaster.stopDay()"><i class="icon-moon"></i> La nuit tombe !</button>' +
+				'</div>'
 		}
 	});
 

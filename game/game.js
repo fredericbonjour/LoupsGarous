@@ -13,13 +13,14 @@
 			$scope.messages.add({
 				sender: $rootScope.user.id,
 				body: $scope.msg,
-				date: new Date().getTime()
+				date: new Date().getTime(),
+				time: $rootScope.game.time,
+				team: $scope.me ? $scope.me.team : ''
 			});
 			$scope.msg = "";
 		};
 
 		$scope.joinGame = LG.joinGame;
-
 		$scope.quitGame = LG.quitGame;
 
 		$rootScope.$watch('game.status', function (status, previous) {
@@ -30,10 +31,56 @@
 			else if (status === 'RUNNING') {
 				console.log("game started");
 				console.log("joinRef=", $rootScope.user.joinRef);
-				var player = $rootScope.game.players[$rootScope.user.joinRef];
-				$scope.me = lgCharacters.characterById(player.role);
+				if ($rootScope.user.joinRef) {
+					LG.initUserPlayer($scope);
+				}
+				else {
+					console.log("Il semblerait que vous ne soyez pas dans la partie :(");
+				}
+
+			}
+			else if (previous === 'RUNNING') {
+				LG.quitGame();
 			}
 		}, true);
+
+		$scope.isNight = function () {
+			return LG.isNight();
+		};
+
+		$scope.isDay = function () {
+			return LG.isDay();
+		};
+
+		$scope.gameMaster = {
+			stopGame : function () {
+				if (confirm("Souhaitez-vous réellemment arrêter cette partie ? Ce serait dommage...")) {
+					LG.stopGame();
+				}
+			},
+
+			stopNight : function () {
+				LG.stopNight();
+			},
+
+			stopDay : function () {
+				LG.stopDay();
+			}
+		};
+
+
+		$scope.availableMessages = function () {
+			var messages = [];
+			if ($scope.game && $scope.game.messages) {
+				angular.forEach($scope.game.messages, function (msg) {
+					if (!msg.time || msg.time === 'D' || ($scope.me && msg.team === $scope.me.team)) {
+						messages.push(msg);
+					}
+				});
+			}
+			return messages;
+		}
+
 	});
 
 
@@ -50,6 +97,9 @@
 		};
 
 		$scope.joinGame = LG.joinGame;
+		$scope.prepareGame = LG.prepareGame;
+		$scope.cancelGame = LG.cancelGame;
+		$scope.stopGame = LG.stopGame;
 
 		$scope.countPlayers = function () {
 			if ($scope.game && $scope.game.players) {
@@ -57,59 +107,13 @@
 				angular.forEach($scope.game.players, function () {
 					count++;
 				});
-				console.log("players=", count);
 				return count;
 			}
 			return 0;
 		};
 
-
-		$scope.prepareGame = function () {
-			$rootScope.game.status = 'PREPARING';
-		};
-
-		$scope.prepareGame = function () {
-			$rootScope.game.status = 'PREPARING';
-		};
-
-		$scope.cancelGame = function () {
-			$scope.createGame();
-		};
-
-		$scope.stopGame = function () {
-			$rootScope.game.status = 'STOPPED';
-			$timeout(function () {
-				new Firebase(LG_FIREBASE_URL + 'game/players').remove();
-			});
-		};
-
-		function assignCharacters () {
-			console.log($scope.gameData.selectedChars);
-
-			// Create flat list of chars
-			var i, j,
-				chars = $scope.gameData.selectedChars.chars,
-				list = [];
-
-			for (i=0 ; i<chars.length ; i++) {
-				for (j=0 ; j<chars[i].count ; j++) {
-					list.push(chars[i].id);
-				}
-			}
-
-			angular.forEach($rootScope.game.players, function (player) {
-				var r = Math.floor(Math.random()*list.length);
-				player.role = list[r];
-				//$rootScope.players.update(player);
-				console.log("Assigning ", player.role, " to ", player);
-				list.splice(r, 1);
-			});
-		}
-
 		$scope.beginGame = function () {
-			assignCharacters();
-			$rootScope.game.status = 'RUNNING';
-			$location.path('/game');
+			LG.beginGame($scope.gameData.selectedChars);
 		};
 	});
 
