@@ -142,9 +142,7 @@
 				$rootScope.userInfo.joinRef = joinRef.name();
 			}
 
-			playersReadyDefered.promise.then(function (players) {
-				doJoin();
-			});
+			playersReadyDefered.promise.then(doJoin);
 		}
 
 		function quitGame () {

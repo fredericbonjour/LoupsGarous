@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>test</title>
+	<title>Loups-Garous en ligne :)</title>
 
 	<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
@@ -44,6 +44,11 @@
 					<li><a href="#/admin">Gérer la partie</a></li>
 				</ul>
 			</li>
+		</ul>
+
+		<ul class="nav navbar-nav">
+			<li ng-if="isNight()"><a href="javascript:;"><strong style="font-size:15pt;color:white;"><i class="icon-moon"></i> Nuit</strong></a></li>
+			<li ng-if="isDay()"><a href="javascript:;"><strong style="font-size:15pt;"><i class="icon-sun"></i> Jour</strong></a></li>
 		</ul>
 
 		<ul class="nav navbar-nav navbar-right" ng-if="user">

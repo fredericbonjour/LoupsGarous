@@ -118,6 +118,16 @@ img.card {
 }
 
 
+.votes-count {
+	font-size: 22pt;
+	line-height: 22pt;
+}
+
+.list-group-item button.btn-sm {
+	vertical-align: baseline;
+	margin-right: 5px;
+}
+
 /*
 html,body {
 	height:100%;

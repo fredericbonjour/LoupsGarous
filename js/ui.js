@@ -235,7 +235,16 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<button ng-click="toggleVote(p)" class="btn btn-block" ng-class="{\'btn-primary\': p.$id==lastVoteId}" type="button" ng-repeat="(name,p) in players">{{ users[p.user].name }} <span class="badge">{{ p.votes }}</span></button>',
+				'<div class="panel panel-default">' +
+					'<div class="panel-heading"><h4>Joueurs</h4></div>' +
+					'<ul class="list-group">' +
+						'<li class="list-group-item" ng-repeat="(name,p) in players">' +
+							'<span class="pull-right votes-count" ng-class="{\'text-muted\':p.votes==0}">{{ p.votes }}</span>' +
+							'<button ng-click="toggleVote(p)" class="btn btn-default btn-sm" ng-class="{\'btn-primary\': p.$id==lastVoteId}" type="button"><i class="icon-thumbs-up"></i></button>' +
+							' {{ users[p.user].name }}' +
+						'</li>' +
+					'</ul>' +
+				'</div>',
 			scope : true,
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
@@ -270,11 +279,13 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<div class="well">' +
-					'<h4>Maître du jeu</h4>' +
-					'<button type="button" class="btn btn-danger btn-block" ng-click="gameMaster.stopGame()">Arrêter la partie</button>' +
-					'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="gameMaster.stopNight()"><i class="icon-sun"></i> Le jour se lève !</button>' +
-					'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="gameMaster.stopDay()"><i class="icon-moon"></i> La nuit tombe !</button>' +
+				'<div class="panel panel-danger">' +
+					'<div class="panel-heading"><h4>Maître du jeu</h4></div>' +
+					'<div class="panel-body">' +
+						'<button type="button" class="btn btn-danger btn-block" ng-click="gameMaster.stopGame()">Arrêter la partie</button>' +
+						'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="gameMaster.stopNight()"><i class="icon-sun"></i> Le jour se lève !</button>' +
+						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="gameMaster.stopDay()"><i class="icon-moon"></i> La nuit tombe !</button>' +
+					'</div>' +
 				'</div>'
 		}
 	});

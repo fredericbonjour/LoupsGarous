@@ -67,7 +67,9 @@
 		<div ng-switch-when="RUNNING">
 			<ol class="breadcrumb">
 				<li><a href="#/">Accueil</a></li>
-				<li class="active">Partie en cours</li>
+				<li>Partie en cours</li>
+				<li ng-if="isNight()" class="active"><i class="icon-moon"></i> Nuit</li>
+				<li ng-if="isDay()" class="active"><i class="icon-sun"></i> Jour</li>
 			</ol>
 
 			<div class="alert alert-info">
