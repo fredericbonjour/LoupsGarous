@@ -230,7 +230,7 @@
 	});
 
 
-	app.directive('lgPlayersPoll', function (LG)
+	app.directive('lgPlayersPoll', function (LG, $rootScope)
 	{
 		return {
 			'restrict' : 'A',
@@ -238,10 +238,15 @@
 				'<div class="panel panel-default">' +
 					'<div class="panel-heading"><h4>Joueurs</h4></div>' +
 					'<ul class="list-group">' +
-						'<li class="list-group-item" ng-repeat="(name,p) in players">' +
-							'<span class="pull-right votes-count" ng-class="{\'text-muted\':p.votes==0}">{{ p.votes }}</span>' +
-							'<button ng-click="toggleVote(p)" class="btn btn-default btn-sm" ng-class="{\'btn-primary\': p.$id==lastVoteId}" type="button"><i class="icon-thumbs-up"></i></button>' +
-							' {{ users[p.user].name }}' +
+						'<li class="list-group-item" ng-class="{\'player-is-me\':p.$id==me.player.$id}" ng-repeat="(name,p) in players">' +
+							'<span class="pull-right votes-count" ng-init="votesCount=countVotes(p)" ng-class="{\'text-muted\':votesCount==0}">{{ votesCount }}</span>' +
+							'<button ng-click="toggleVote(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'btn-primary\': p.$id == me.player.voteFor}" type="button"><i class="icon-thumbs-up"></i></button>' +
+							' <strong>{{ users[p.user].name }}</strong>' +
+							'<br/><small>' +
+							'<span ng-if="!p.voteFor">n\'a pas encore voté</span>' +
+							'<span ng-if="p.voteFor && p.$id == p.voteFor"><i class="icon-arrow-right"></i> lui-même</span>' +
+							'<span ng-if="p.voteFor && p.$id != p.voteFor"><i class="icon-arrow-right"></i> {{users[game.players[p.voteFor].user].name}}</span>' +
+							'</small>' +
 						'</li>' +
 					'</ul>' +
 				'</div>',
@@ -249,26 +254,26 @@
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
 			{
-				scope.lastVoteId = null;
-
-				scope.players = LG.bindCollection('game/players');
-
-				scope.toggleVote = function (player) {
-					if (scope.lastVoteId) {
-						if (player.$id === scope.lastVoteId) {
-							player.votes--;
-							scope.players.update(player);
-							scope.lastVoteId = null;
-							return;
-						}
-						else {
-							scope.players.getByName(scope.lastVoteId).votes--;
-							scope.players.update(scope.lastVoteId);
-						}
+				scope.toggleVote = function (player)
+				{
+					var me = $rootScope.me.player;
+					if (me.voteFor === player.$id) {
+						me.voteFor = null;
 					}
-					player.votes++;
-					scope.players.update(player);
-					scope.lastVoteId = player.$id;
+					else {
+						me.voteFor = player.$id;
+					}
+					$rootScope.players.update(me);
+				};
+
+				scope.countVotes = function (player) {
+					var count = 0;
+					angular.forEach($rootScope.players, function (p) {
+						if (p.voteFor === player.$id) {
+							count++
+						}
+					});
+					return count;
 				};
 			}
 		}

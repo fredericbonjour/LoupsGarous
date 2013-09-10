@@ -100,16 +100,14 @@ body {
 	margin-right: 10px;
 }
 
-.character.select figcaption {
+.character figcaption {
 	font-size: 120%;
-	font-family: "Times New Roman";
+	font-family: 'Lobster Two', cursive;
 }
 
-.character.select figcaption h4 {
+.character figcaption h4 {
 	font-size: 140%;
-	font-family: "Times New Roman";
-	font-style: italic;
-	text-transform: capitalize;
+	font-family: 'Lobster Two', cursive;
 }
 
 img.card {
@@ -125,7 +123,18 @@ img.card {
 
 .list-group-item button.btn-sm {
 	vertical-align: baseline;
-	margin-right: 5px;
+	margin-right: 10px;
+}
+
+.panel-heading h4 {
+	font-family: 'Wire One', sans-serif;
+	font-size: 28pt;
+	font-weight: bold;
+	margin: 0;
+}
+
+.list-group-item.player-is-me {
+	background: #EEDDEE;
 }
 
 /*
