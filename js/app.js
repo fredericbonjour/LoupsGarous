@@ -1,7 +1,8 @@
 (function (Firebase) {
 
 	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]),
-		firebaseRef = new Firebase(LG_FIREBASE_URL);
+		firebaseRef = new Firebase(LG_FIREBASE_URL),
+		NIGHT_DURATION = 10;
 
 
 	app.config(function($routeProvider)
@@ -203,11 +204,11 @@
 		// Night and day
 		//
 
-		function stopNight () {
+		function beginDay () {
 			$rootScope.game.time = 'D';
 		}
 
-		function stopDay () {
+		function beginNight () {
 			$rootScope.game.time = 'N';
 		}
 
@@ -220,6 +221,20 @@
 			return ! isNight();
 		}
 		$rootScope.isDay = isDay;
+
+		function startNightTime (scope) {
+			function tick () {
+				scope.gameTimer--;
+				if (scope.gameTimer === 0) {
+					console.log("La nuit est finie !");
+				}
+				else {
+					$timeout(tick, 1000);
+				}
+			}
+			scope.gameTimer = NIGHT_DURATION + 1;
+			tick();
+		}
 
 		//
 		// Public API
@@ -247,10 +262,11 @@
 			initUserPlayer : initUserPlayer,
 
 			// Night and day
-			stopNight : stopNight,
-			stopDay : stopDay,
+			beginDay : beginDay,
+			beginNight : beginNight,
 			isNight : isNight,
-			isDay : isDay
+			isDay : isDay,
+			startNightTime : startNightTime
 		};
 
 	});
@@ -267,6 +283,21 @@
 			LG.logout();
 		};
 	});
+
+
+	app.filter('remainingTime', function () {
+		return function (seconds) {
+			var min = 0;
+			if (seconds > 59) {
+				min = Math.floor(seconds / 60);
+				seconds = seconds % 60;
+			}
+			if (seconds < 10) {
+				return min + ':0' + seconds;
+			}
+			return '0:' + seconds;
+		};
+	})
 
 
 })(Firebase);

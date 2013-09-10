@@ -49,23 +49,6 @@
 			return LG.isDay();
 		};
 
-		$scope.gameMaster = {
-			stopGame : function () {
-				if (confirm("Souhaitez-vous réellemment arrêter cette partie ? Ce serait dommage...")) {
-					LG.stopGame();
-				}
-			},
-
-			stopNight : function () {
-				LG.stopNight();
-			},
-
-			stopDay : function () {
-				LG.stopDay();
-			}
-		};
-
-
 		$scope.availableMessages = function () {
 			var messages = [];
 			if ($scope.game && $scope.game.messages) {
@@ -76,7 +59,15 @@
 				});
 			}
 			return messages;
-		}
+		};
+
+
+		$rootScope.$watch('game.time', function (value, old) {
+			if (value === 'N' && old === 'D') {
+				LG.initNight($scope);
+			}
+		});
+
 
 	});
 

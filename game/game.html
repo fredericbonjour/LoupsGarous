@@ -37,7 +37,9 @@
 
 				<div lg-game-master-ui ng-if="user.admin"></div>
 
-				<div lg-players-poll=""></div>
+				<div ng-if="gameTimer">{{ gameTimer|remainingTime }}</div>
+
+				<div lg-players-poll="" ng-if="me.char.team=='L' || isDay()"></div>
 			</div>
 		</div>
 	</div>
@@ -84,7 +86,7 @@
 			<ul class="media-list messages">
 				<li class="media" ng-repeat="msg in availableMessages() | orderBy:'date'" lg-message="msg"></li>
 			</ul>
-			<form ng-hide="me.team == 'V' && isNight()" name="form" novalidate="" ng-submit="addMessage()">
+			<form ng-hide="me.char.team == 'V' && isNight()" name="form" novalidate="" ng-submit="addMessage()">
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="input-group">
@@ -96,8 +98,8 @@
 					</div>
 				</div>
 			</form>
-			<div ng-show="me.team == 'V' && isNight()" class="alert alert-info">
-				<h4><i class="icon-moon"></i> C'est la nuit, vous dormez à points fermés !</h4>
+			<div ng-show="me.char.team == 'V' && isNight()" class="alert alert-info">
+				<h4><i class="icon-moon"></i> C'est la nuit, vous dormez à poings fermés !</h4>
 				Espérons que les loups ne jetterons pas leur dévolu sur vous...
 			</h4>
 		</div>

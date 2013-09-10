@@ -133,23 +133,10 @@ img.card {
 	margin: 0;
 }
 
-.list-group-item.player-is-me {
-	background: #EEDDEE;
+.panel-footer .label {
+	margin-right: 3px;
 }
 
-/*
-html,body {
-	height:100%;
-	padding:0;
-	margin:0;
+.game-timer {
+	font-family: Wallpoet;
 }
-
-.chat {
-
-}
-
-.chat .messages {
-	max-height: 700px;
-	overflow-y: scroll;
-}
-*/

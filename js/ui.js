@@ -238,9 +238,9 @@
 				'<div class="panel panel-default">' +
 					'<div class="panel-heading"><h4>Joueurs</h4></div>' +
 					'<ul class="list-group">' +
-						'<li class="list-group-item" ng-class="{\'player-is-me\':p.$id==me.player.$id}" ng-repeat="(name,p) in players">' +
+						'<li class="list-group-item" ng-class="{\'active\':p.$id==me.player.$id}" ng-repeat="(name,p) in players">' +
 							'<span class="pull-right votes-count" ng-class="{\'text-muted\':countVotes(p)==0}">{{ countVotes(p) }}</span>' +
-							'<button ng-click="toggleVote(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'btn-primary\': p.$id == me.player.voteFor}" type="button"><i class="icon-thumbs-up"></i></button>' +
+							'<button ng-click="toggleVote(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'btn-success\': p.$id == me.player.voteFor}" type="button"><i class="icon-thumbs-up"></i></button>' +
 							' <strong>{{ users[p.user].name }}</strong>' +
 							'<br/><small>' +
 							'<span ng-if="!p.voteFor">n\'a pas encore voté</span>' +
@@ -249,11 +249,30 @@
 							'</small>' +
 						'</li>' +
 					'</ul>' +
+					'<div class="panel-footer">' +
+						'<div ng-pluralize="" count="mostVotedPlayers.length" when="{\'0\':\'Aucun vote pour le moment\', \'one\':\'Le plus voté :\', \'other\':\'Les {} plus votés :\'}"></div>' +
+						'<span class="label label-danger" ng-repeat="p in mostVotedPlayers">{{ users[game.players[p].user].name }}</span>' +
+					'</div>' +
 				'</div>',
 			scope : true,
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
 			{
+				scope.players = {};
+
+				$rootScope.$watch('game.time', function () {
+					if (LG.isNight()) {
+						angular.forEach($rootScope.players, function (player, id) {
+							if (player.role === 'vill') {
+								scope.players[id] = player;
+							}
+						});
+					}
+					else {
+						scope.players = $rootScope.players;
+					}
+				});
+
 				scope.toggleVote = function (player)
 				{
 					var me = $rootScope.me.player;
@@ -266,6 +285,8 @@
 					$rootScope.players.update(me);
 				};
 
+				scope.votesByPlayer = {};
+
 				scope.countVotes = function (player) {
 					var count = 0;
 					angular.forEach($rootScope.players, function (p) {
@@ -273,25 +294,64 @@
 							count++
 						}
 					});
+					scope.votesByPlayer[player.$id] = count;
 					return count;
 				};
+
+				scope.mostVotedPlayers = [];
+
+				scope.$watch(function () {
+					var players = [];
+					var maxVotes = 0;
+					// Get max value for votes
+					angular.forEach(scope.votesByPlayer, function (count) {
+						maxVotes = Math.max(maxVotes, count);
+					});
+					if (maxVotes > 0) {
+						// Get which players have this vote count
+						angular.forEach(scope.votesByPlayer, function (count, playerId) {
+							if (count === maxVotes) {
+								players.push(playerId);
+							}
+						});
+					}
+					scope.mostVotedPlayers = players;
+				});
+
 			}
 		}
 	});
 
 
-	app.directive('lgGameMasterUi', function () {
+	app.directive('lgGameMasterUi', function (LG) {
 		return {
 			'restrict' : 'A',
 			'template' :
 				'<div class="panel panel-danger">' +
 					'<div class="panel-heading"><h4>Maître du jeu</h4></div>' +
 					'<div class="panel-body">' +
-						'<button type="button" class="btn btn-danger btn-block" ng-click="gameMaster.stopGame()">Arrêter la partie</button>' +
-						'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="gameMaster.stopNight()"><i class="icon-sun"></i> Le jour se lève !</button>' +
-						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="gameMaster.stopDay()"><i class="icon-moon"></i> La nuit tombe !</button>' +
+						'<button type="button" class="btn btn-danger btn-block" ng-click="stopGame()">Arrêter la partie</button>' +
+						'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="beginDay()"><i class="icon-sun"></i> Le jour se lève !</button>' +
+						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="beginNight()"><i class="icon-moon"></i> La nuit tombe !</button>' +
 					'</div>' +
-				'</div>'
+				'</div>',
+			'scope' : true,
+
+			'link' : function (scope) {
+				scope.stopGame = function () {
+					if (confirm("Souhaitez-vous réellemment arrêter cette partie ? Ce serait dommage...")) {
+						LG.stopGame();
+					}
+				};
+
+				scope.beginDay = function () {
+					LG.beginDay();
+				};
+
+				scope.beginNight = function () {
+					LG.beginNight();
+				};
+			}
 		}
 	});
 
