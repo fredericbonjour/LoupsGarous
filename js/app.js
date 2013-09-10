@@ -16,8 +16,6 @@
 
 
 	app.run(function (angularFire, angularFireAuth, $rootScope) {
-		console.log("app run");
-
 		$rootScope.$on('angularFireAuth:login', function (event, user) {
 			console.log("angularFireAuth:login: user=", user);
 			angularFire(firebaseRef.child('users/' + user.id), $rootScope, 'userInfo');
@@ -136,7 +134,7 @@
 				var joinRef = $rootScope.players.add({
 					'user'   : $rootScope.user.id,
 					'status' : 'ALIVE',
-					'votes'  : 0
+					'voteFor': null
 				});
 				console.log("Join id: ", joinRef.name());
 				$rootScope.userInfo.joinRef = joinRef.name();
@@ -179,7 +177,6 @@
 			angular.forEach($rootScope.game.players, function (player) {
 				var r = Math.floor(Math.random()*list.length);
 				player.role = list[r];
-				//player.team =
 				console.log("Assigning ", player.role, " to ", player);
 				list.splice(r, 1);
 			});
@@ -192,11 +189,13 @@
 			$location.path('/game');
 		}
 
-		function initUserPlayer ($scope) {
+		function initUserPlayer () {
 			playersReadyDefered.promise.then(function () {
-				console.log("$rootScope.players=", $rootScope.players);
 				var player = $rootScope.players.getByName($rootScope.user.joinRef);
-				$scope.me = angular.copy(lgCharacters.characterById(player.role));
+				$rootScope.me = {
+					'char'   : angular.copy(lgCharacters.characterById(player.role)),
+					'player' : player
+				};
 			});
 		}
 

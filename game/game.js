@@ -24,15 +24,12 @@
 		$scope.quitGame = LG.quitGame;
 
 		$rootScope.$watch('game.status', function (status, previous) {
-			console.log("game.status=", status);
 			if (previous === 'PREPARING' && status === 'WAITING') {
 				LG.quitGame();
 			}
 			else if (status === 'RUNNING') {
-				console.log("game started");
-				console.log("joinRef=", $rootScope.user.joinRef);
 				if ($rootScope.user.joinRef) {
-					LG.initUserPlayer($scope);
+					LG.initUserPlayer();
 				}
 				else {
 					console.log("Il semblerait que vous ne soyez pas dans la partie :(");
