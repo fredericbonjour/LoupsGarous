@@ -41,13 +41,13 @@
 			}
 		}, true);
 
-		$scope.isNight = function () {
+		/*$scope.isNight = function () {
 			return LG.isNight();
 		};
 
 		$scope.isDay = function () {
 			return LG.isDay();
-		};
+		};*/
 
 		$scope.availableMessages = function () {
 			var messages = [];
@@ -60,14 +60,6 @@
 			}
 			return messages;
 		};
-
-
-		$rootScope.$watch('game.time', function (value, old) {
-			if (value === 'N' && old === 'D') {
-				LG.startNightTime($scope);
-			}
-		});
-
 
 	});
 

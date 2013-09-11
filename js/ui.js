@@ -236,7 +236,7 @@
 			'restrict' : 'A',
 			'template' :
 				'<div class="panel panel-default">' +
-					'<div class="panel-heading"><h4>Joueurs</h4></div>' +
+					'<div class="panel-heading"><h4><i class="icon-group"></i> Joueurs</h4></div>' +
 					'<ul class="list-group">' +
 						'<li class="list-group-item" ng-class="{\'active\':p.$id==me.player.$id}" ng-repeat="(name,p) in players">' +
 							'<span class="pull-right votes-count" ng-class="{\'text-muted\':countVotes(p)==0}">{{ countVotes(p) }}</span>' +
@@ -328,7 +328,7 @@
 			'restrict' : 'A',
 			'template' :
 				'<div class="panel panel-danger">' +
-					'<div class="panel-heading"><h4>Maître du jeu</h4></div>' +
+					'<div class="panel-heading"><h4><i class="icon-cog"></i> Maître du jeu</h4></div>' +
 					'<div class="panel-body">' +
 						'<button type="button" class="btn btn-danger btn-block" ng-click="stopGame()">Arrêter la partie</button>' +
 						'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="beginDay()"><i class="icon-sun"></i> Le jour se lève !</button>' +
@@ -337,7 +337,8 @@
 				'</div>',
 			'scope' : true,
 
-			'link' : function (scope) {
+			'link' : function (scope)
+			{
 				scope.stopGame = function () {
 					if (confirm("Souhaitez-vous réellemment arrêter cette partie ? Ce serait dommage...")) {
 						LG.stopGame();
@@ -351,6 +352,54 @@
 				scope.beginNight = function () {
 					LG.beginNight();
 				};
+			}
+		}
+	});
+
+	app.directive('lgTimer', function ($rootScope, $timeout) {
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div class="panel panel-default" ng-class="{\'panel-danger\':time <= 30}">' +
+					'<div class="panel-heading"><h4><i class="icon-time"></i> Temps</h4></div>' +
+					'<div class="panel-body">{{ time | remainingTime }}</div>' +
+				'</div>',
+
+			'scope' : {
+				'whenOver' : '&'
+			},
+
+			'link' : function (scope)
+			{
+				var timer;
+
+				function tick () {
+					scope.time--;
+					if (scope.time === 0) {
+						console.log("La nuit est finie !");
+					}
+					else {
+						timer = $timeout(tick, 1000);
+					}
+				}
+
+				function stop () {
+					if (timer) {
+						$timeout.cancel(timer);
+					}
+				}
+
+				$rootScope.$watch('game.time', function (value, old) {
+					console.log("game.time=", value, old);
+					if (value === 'N' && old === 'D') {
+						scope.time = 45 + 1;
+						stop();
+						tick();
+					}
+					else if (value === 'D') {
+						stop();
+					}
+				}, true);
 			}
 		}
 	});

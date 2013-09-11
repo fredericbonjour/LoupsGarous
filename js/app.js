@@ -222,20 +222,6 @@
 		}
 		$rootScope.isDay = isDay;
 
-		function startNightTime (scope) {
-			function tick () {
-				scope.gameTimer--;
-				if (scope.gameTimer === 0) {
-					console.log("La nuit est finie !");
-				}
-				else {
-					$timeout(tick, 1000);
-				}
-			}
-			scope.gameTimer = NIGHT_DURATION + 1;
-			tick();
-		}
-
 		//
 		// Public API
 		//
@@ -265,8 +251,7 @@
 			beginDay : beginDay,
 			beginNight : beginNight,
 			isNight : isNight,
-			isDay : isDay,
-			startNightTime : startNightTime
+			isDay : isDay
 		};
 
 	});
@@ -287,6 +272,9 @@
 
 	app.filter('remainingTime', function () {
 		return function (seconds) {
+			if (! seconds) {
+				seconds = 0;
+			}
 			var min = 0;
 			if (seconds > 59) {
 				min = Math.floor(seconds / 60);
