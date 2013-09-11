@@ -295,7 +295,7 @@
 			if (seconds < 10) {
 				return min + ':0' + seconds;
 			}
-			return '0:' + seconds;
+			return min + ':' + seconds;
 		};
 	})
 

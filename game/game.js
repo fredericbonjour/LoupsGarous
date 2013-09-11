@@ -64,7 +64,7 @@
 
 		$rootScope.$watch('game.time', function (value, old) {
 			if (value === 'N' && old === 'D') {
-				LG.initNight($scope);
+				LG.startNightTime($scope);
 			}
 		});
 

@@ -37,7 +37,7 @@
 
 				<div lg-game-master-ui ng-if="user.admin"></div>
 
-				<div ng-if="gameTimer">{{ gameTimer|remainingTime }}</div>
+				<div ng-if="gameTimer" class="game-timer">{{ gameTimer|remainingTime }}</div>
 
 				<div lg-players-poll="" ng-if="me.char.team=='L' || isDay()"></div>
 			</div>
