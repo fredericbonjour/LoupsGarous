@@ -240,12 +240,13 @@
 					'<ul class="list-group">' +
 						'<li class="list-group-item" ng-class="{\'active\':p.$id==me.player.$id}" ng-repeat="(name,p) in players">' +
 							'<span class="pull-right votes-count" ng-class="{\'text-muted\':countVotes(p)==0}">{{ countVotes(p) }}</span>' +
-							'<button ng-click="toggleVote(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'btn-success\': p.$id == me.player.voteFor}" type="button"><i class="icon-thumbs-up"></i></button>' +
+							'<button ng-click="toggleVote(p)" ng-disabled="isDead(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'btn-success\': p.$id == me.player.voteFor && isAlive(p)}" type="button"><i ng-class="{true:\'icon-thumbs-up\', false:\'icon-ban-circle\'}[isAlive(p)]"></i></button>' +
 							' <strong>{{ users[p.user].name }}</strong>' +
 							'<br/><small>' +
-							'<span ng-if="!p.voteFor">n\'a pas encore voté</span>' +
-							'<span ng-if="p.voteFor && p.$id == p.voteFor"><i class="icon-arrow-right"></i> lui-même</span>' +
-							'<span ng-if="p.voteFor && p.$id != p.voteFor"><i class="icon-arrow-right"></i> {{users[game.players[p.voteFor].user].name}}</span>' +
+							'<span ng-if="isDead(p)">est mort</span>' +
+							'<span ng-if="isAlive(p) && !p.voteFor">n\'a pas encore voté</span>' +
+							'<span ng-if="isAlive(p) && p.voteFor && p.$id == p.voteFor"><i class="icon-arrow-right"></i> lui-même</span>' +
+							'<span ng-if="isAlive(p) && p.voteFor && p.$id != p.voteFor"><i class="icon-arrow-right"></i> {{users[game.players[p.voteFor].user].name}}</span>' +
 							'</small>' +
 						'</li>' +
 					'</ul>' +
@@ -360,14 +361,8 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<div class="panel panel-default" ng-class="{\'panel-danger\':time <= 30}">' +
-					'<div class="panel-heading"><h4><i class="icon-time"></i> Temps</h4></div>' +
-					'<div class="panel-body">{{ time | remainingTime }}</div>' +
-				'</div>',
-
-			'scope' : {
-				'whenOver' : '&'
-			},
+				'<span ng-class="{\'danger\':time <= 30}">{{ time | remainingTime }}<i class="icon-moon"></i></span>',
+			'replace'  : true,
 
 			'link' : function (scope)
 			{
@@ -376,7 +371,7 @@
 				function tick () {
 					scope.time--;
 					if (scope.time === 0) {
-						console.log("La nuit est finie !");
+						$rootScope.$broadcast('LG:NightIsOver');
 					}
 					else {
 						timer = $timeout(tick, 1000);
@@ -392,7 +387,7 @@
 				$rootScope.$watch('game.time', function (value, old) {
 					console.log("game.time=", value, old);
 					if (value === 'N' && old === 'D') {
-						scope.time = 45 + 1;
+						scope.time = 10 + 1;
 						stop();
 						tick();
 					}

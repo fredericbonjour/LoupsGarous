@@ -80,7 +80,7 @@
 		bind($rootScope, 'users', 'users');
 		bind($rootScope, 'game', 'game');
 
-		$rootScope.$watchCollection('players', function (players, old) {
+		$rootScope.$watchCollection('players', function (players) {
 			if (players) {
 				playersReadyDefered.resolve(players);
 			}
@@ -209,18 +209,131 @@
 		}
 
 		function beginNight () {
+			resetVotes();
 			$rootScope.game.time = 'N';
 		}
+
+
+		function resetVotes () {
+			angular.forEach($rootScope.game.players, function (p) {
+				p.voteFor = null;
+			});
+		}
+
 
 		function isNight () {
 			return $rootScope.game && $rootScope.game.time === 'N';
 		}
 		$rootScope.isNight = isNight;
 
+
 		function isDay () {
 			return ! isNight();
 		}
 		$rootScope.isDay = isDay;
+
+
+		function isGameMaster () {
+			return $rootScope.user && $rootScope.game && $rootScope.game.master == $rootScope.user.id;
+		}
+		$rootScope.isGameMaster = isGameMaster;
+
+
+		function isDead (player) {
+			return player && player.status === 'DEAD';
+		}
+		$rootScope.isDead = isDead;
+
+
+		function isAlive (player) {
+			return player && player.status === 'ALIVE';
+		}
+		$rootScope.isAlive = isAlive;
+
+
+		function iAmDead() {
+			return $rootScope.me && isDead($rootScope.me.player);
+		}
+		$rootScope.iAmDead = iAmDead;
+
+
+		function iAmAlive() {
+			return $rootScope.me && isAlive($rootScope.me.player);
+		}
+		$rootScope.iAmAlive = iAmAlive;
+
+
+
+		$rootScope.$on('LG:NightIsOver', function () {
+			console.log("Nuit terminée !");
+			// Only the game master's client will end the night.
+			if (isGameMaster()) {
+				console.log("Maître du jeu -> terminer la nuit...");
+
+				var votesByPlayer = {};
+				angular.forEach($rootScope.players, function (p) {
+					if (p.voteFor) {
+						votesByPlayer[p.voteFor] = (votesByPlayer[p.voteFor] || 0) + 1;
+					}
+				});
+				console.log(votesByPlayer);
+
+				var maxVotes = 0, loosers = [], looser = null;
+				// Get max value for votes
+				angular.forEach(votesByPlayer, function (count) {
+					maxVotes = Math.max(maxVotes, count);
+				});
+				if (maxVotes > 0) {
+					// Get which players have this vote count
+					angular.forEach(votesByPlayer, function (count, playerId) {
+						if (count === maxVotes) {
+							loosers.push(playerId);
+						}
+					});
+				}
+				console.log("loosers of the night: ", loosers);
+
+				if (loosers.length === 1) {
+					looser = loosers[0];
+				}
+				// Multiple loosers
+				else if (loosers.length > 1) {
+					looser = loosers[Math.floor(Math.random()*loosers.length)];
+				}
+
+				if (! looser) {
+					console.log("Aucun perdant !");
+				}
+				else {
+					killPlayer(looser);
+				}
+
+			}
+		});
+
+
+		function myTeamIs(team) {
+			return $rootScope.me && $rootScope.me.char.team === team;
+		}
+		$rootScope.myTeamIs = myTeamIs;
+
+
+		function killPlayer (pId) {
+			console.log("killing player ", pId);
+			var looser = $rootScope.players.getByName(pId);
+			looser.status = 'DEAD';
+			$rootScope.players.update(looser);
+
+			if ($rootScope.me.player.$id === pId) {
+				console.log("Hey, it's me :(");
+				$rootScope.me.player.status = 'DEAD';
+			}
+		}
+
+
+
+
+
 
 		//
 		// Public API
@@ -251,7 +364,14 @@
 			beginDay : beginDay,
 			beginNight : beginNight,
 			isNight : isNight,
-			isDay : isDay
+			isDay : isDay,
+
+			isDead : isDead,
+			isAlive : isAlive,
+
+			iAmDead : iAmDead,
+			iAmAlive : iAmAlive,
+			myTeamIs : myTeamIs
 		};
 
 	});

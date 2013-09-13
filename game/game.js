@@ -15,7 +15,8 @@
 				body: $scope.msg,
 				date: new Date().getTime(),
 				time: $rootScope.game.time,
-				team: $scope.me ? $scope.me.team : ''
+				team: $scope.me ? $scope.me.char.team : '',
+				dead: LG.isDead($scope.me.player)
 			});
 			$scope.msg = "";
 		};
@@ -41,19 +42,22 @@
 			}
 		}, true);
 
-		/*$scope.isNight = function () {
-			return LG.isNight();
-		};
 
-		$scope.isDay = function () {
-			return LG.isDay();
-		};*/
+		$rootScope.$watch('game.time', function (value, old) {
+			if (value === 'N' && old === 'D') {
+				console.log("Game time: ", value, " (old=", old, ")");
+				$rootScope.me.player.voteFor = null;
+			}
+		}, true);
 
 		$scope.availableMessages = function () {
 			var messages = [];
 			if ($scope.game && $scope.game.messages) {
 				angular.forEach($scope.game.messages, function (msg) {
-					if (!msg.time || msg.time === 'D' || ($scope.me && msg.team === $scope.me.team)) {
+					if (LG.iAmDead()) {
+						messages.push(msg);
+					}
+					else if (! msg.dead && (!msg.time || msg.time === 'D' || ($rootScope.me && msg.team === $rootScope.me.team))) {
 						messages.push(msg);
 					}
 				});

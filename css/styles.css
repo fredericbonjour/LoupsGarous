@@ -137,19 +137,23 @@ img.card {
 	margin-right: 3px;
 }
 
-[lg-timer] .panel-body {
+[lg-timer] {
 	font-family: 'Digital Display';
-	font-size: 40pt;
+	font-size: 32pt;
 	color: lightskyblue;
-	background: #444444;
-	box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 	text-align: center;
 	border-radius: 4px;
 	text-shadow: 0 0 4px lightskyblue;
 	padding: 0;
+	margin: 0 30px;
 }
 
-[lg-timer] .panel-danger .panel-body {
+[lg-timer] i {
+	margin-left: 8px;
+	font-size: 100%;
+}
+
+[lg-timer].danger {
 	color: #FF857E;
 	text-shadow: 0 0 4px #B94A48;
 }

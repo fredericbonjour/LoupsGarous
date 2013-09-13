@@ -36,7 +36,7 @@
 		</div>
 
 
-		<ul class="nav navbar-nav" ng-if="user && user.admin">
+		<ul class="nav navbar-nav" ng-if="isGameMaster()">
 			<li class="dropdown">
 				<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
 					Maître du jeu
@@ -47,9 +47,10 @@
 			</li>
 		</ul>
 
+		<span ng-hide="isDay()" lg-timer=""></span>
+
 		<ul class="nav navbar-nav">
-			<li ng-if="isNight()"><a href="javascript:;"><strong style="font-size:15pt;color:white;"><i class="icon-moon"></i> Nuit</strong></a></li>
-			<li ng-if="isDay()"><a href="javascript:;"><strong style="font-size:15pt;"><i class="icon-sun"></i> Jour</strong></a></li>
+			<li ng-if="isDead(me.player)"><a href="javascript:;">Vous êtes mort</a></li>
 		</ul>
 
 		<ul class="nav navbar-nav navbar-right" ng-if="user">

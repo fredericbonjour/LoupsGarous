@@ -35,11 +35,13 @@
 			<div ng-if="userInfo.joinRef">
 				<div lg-character="me.char"></div>
 
-				<div lg-game-master-ui ng-if="user.admin"></div>
+				<div lg-game-master-ui ng-if="isGameMaster()"></div>
 
-				<div ng-hide="isDay()" lg-timer=""></div>
-
-				<div lg-players-poll="" ng-if="me.char.team=='L' || isDay()"></div>
+				<div lg-players-poll="" ng-if="iAmAlive() && (myTeamIs('L') || isDay())"></div>
+				<div class="alert alert-info" ng-if="iAmDead()">
+					<h4>Vous êtes mort.</h4>
+					C'est terrible ce qui vous est arrivé... Mais un mort ne vote pas, désolé !
+				</div>
 			</div>
 		</div>
 	</div>
@@ -86,7 +88,7 @@
 			<ul class="media-list messages">
 				<li class="media" ng-repeat="msg in availableMessages() | orderBy:'date'" lg-message="msg"></li>
 			</ul>
-			<form ng-hide="me.char.team == 'V' && isNight()" name="form" novalidate="" ng-submit="addMessage()">
+			<form ng-show="myTeamIs('L') || isDay() || iAmDead()" name="form" novalidate="" ng-submit="addMessage()">
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="input-group">
@@ -98,10 +100,14 @@
 					</div>
 				</div>
 			</form>
-			<div ng-show="me.char.team == 'V' && isNight()" class="alert alert-info">
+			<div ng-show="myTeamIs('V') && isNight() && iAmAlive()" class="alert alert-info">
 				<h4><i class="icon-moon"></i> C'est la nuit, vous dormez à poings fermés !</h4>
 				Espérons que les loups ne jetterons pas leur dévolu sur vous...
-			</h4>
+			</div>
+			<div ng-show="iAmDead()" class="alert alert-info">
+				<h4>Vous êtes mort !</h4>
+				Seuls les morts peuvent lire vos messages.
+			</div>
 		</div>
 	</div>
 
