@@ -160,7 +160,9 @@
 		//
 
 		function createGame () {
-			$rootScope.game.status = 'WAITING';
+			resetGame().then(function () {
+				$rootScope.game.status = 'WAITING';
+			});
 		}
 
 		function joinGame () {
@@ -194,6 +196,25 @@
 				new Firebase(LG_FIREBASE_URL + 'game/players').remove();
 			});
 		}
+
+
+		function clearCollection (name)
+		{
+			var mids = [];
+			angular.forEach($rootScope[name], function (m) {
+				mids.push(m.$id);
+			});
+			var promises = [];
+			angular.forEach(mids, function (mid) {
+				var defer = $q.defer();
+				$rootScope[name].remove(mid, function () {
+					resolveDefer(defer);
+				});
+				promises.push(defer.promise);
+			});
+			return $q.all(promises);
+		}
+
 
 		function assignCharacters (selectedChars) {
 			// Create flat list of chars
@@ -354,6 +375,24 @@
 				resolveDefer(defer);
 			});
 			return defer.promise;
+		}
+
+		function clearMessages ()
+		{
+			return clearCollection('messages');
+		}
+
+		function clearPlayers ()
+		{
+			return clearCollection('players');
+		}
+
+		function resetGame ()
+		{
+			return $q.all([
+				clearMessages(),
+				clearPlayers()
+			]);
 		}
 
 
