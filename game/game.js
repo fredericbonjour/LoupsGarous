@@ -31,9 +31,9 @@
 					console.log("Il semblerait que vous ne soyez pas dans la partie :(");
 				}
 			}
-			else if (previous === 'RUNNING' && status !== previous) {
-				console.log("QUIT ??");
-				// LG.quitGame();
+			else if (previous === 'RUNNING' && status === 'STOPPED') {
+				//console.log("QUIT ??");
+				LG.quitGame();
 			}
 		}, true);
 

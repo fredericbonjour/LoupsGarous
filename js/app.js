@@ -199,11 +199,12 @@
 			// Create flat list of chars
 			var i, j,
 				chars = selectedChars.chars,
-				list = [];
+				roles = [], teams = [];
 
 			for (i=0 ; i<chars.length ; i++) {
 				for (j=0 ; j<chars[i].count ; j++) {
-					list.push(chars[i].id);
+					roles.push(chars[i].id);
+					teams.push(chars[i].team);
 				}
 			}
 
@@ -211,20 +212,22 @@
 
 			angular.forEach($rootScope.players, function (player) {
 				var deferred = $q.defer();
-				var r = Math.floor(Math.random()*list.length);
-				player.role = list[r];
+				var r = Math.floor(Math.random()*roles.length);
+				player.role = roles[r];
+				player.team = teams[r];
 				$rootScope.players.update(player, function () {
 					resolveDefer(deferred);
 				});
 				console.log("Assigning ", player.role, " to ", player);
-				list.splice(r, 1);
+				roles.splice(r, 1);
 				promises.push(deferred.promise);
 			});
 
 			return $q.all(promises);
 		}
 
-		function beginGame (selectedChars) {
+		function beginGame (selectedChars)
+		{
 			assignCharacters(selectedChars).then(function () {
 				console.log("All chars assigned and synced!");
 				postGameMessage("La partie vient de commencer ! Bon jeu et... bonne chance !");
@@ -234,7 +237,8 @@
 			});
 		}
 
-		function initUserPlayer () {
+		function initUserPlayer ()
+		{
 			console.log("initUserPlayer");
 			var player = $rootScope.players.getByName($rootScope.user.joinRef);
 			$rootScope.me = {
@@ -254,7 +258,7 @@
 		}
 
 		function endDay () {
-			killVotedPlayer();
+			killVotedPlayer().then(angular.noop, stopGame);
 		}
 
 		function beginNight () {
@@ -263,7 +267,8 @@
 			});
 		}
 
-		function resetVotes () {
+		function resetVotes ()
+		{
 			var promises = [];
 			angular.forEach($rootScope.players, function (p) {
 				var deferred = $q.defer();
@@ -367,7 +372,6 @@
 					votesByPlayer[p.voteFor] = (votesByPlayer[p.voteFor] || 0) + 1;
 				}
 			});
-			console.log(votesByPlayer);
 
 			var maxVotes = 0, deads = [], dead = null;
 			// Get max value for votes
@@ -406,7 +410,7 @@
 			// Only the game master's client will end the night.
 			if (isGameMaster()) {
 				console.log("Maître du jeu -> terminer la nuit...");
-				killVotedPlayer().then(beginDay);
+				killVotedPlayer().then(beginDay, stopGame);
 			}
 		});
 
@@ -417,7 +421,30 @@
 		$rootScope.myTeamIs = myTeamIs;
 
 
-		function killPlayer (pId) {
+		function checkEndOfGame ()
+		{
+			var alives = {
+				'L' : 0,
+				'V' : 0
+			};
+			angular.forEach($rootScope.players, function (player) {
+				if (player.status === 'ALIVE') {
+					alives[player.team]++;
+				}
+			});
+
+			if (alives.L === 0 && alives.V > 0) {
+				return 'V';
+			}
+			else if (alives.L > 0 && alives.V === 0) {
+				return 'L';
+			}
+			return null;
+		}
+
+
+		function killPlayer (pId)
+		{
 			console.log("killing player ", pId);
 			var defer = $q.defer();
 			console.log("killing player ", pId);
@@ -428,7 +455,21 @@
 				$timeout(function () {
 					postGameMessage("Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong> est mort. Paix à son âme !").then(function () {
 						console.log("message posted! resolving...");
-						defer.resolve();
+						var end = checkEndOfGame(), endMessage;
+						if (! end) {
+							defer.resolve();
+						}
+						else {
+							if (end === 'V') {
+								endMessage = "Les villageois ont gagné ! La raison du plus fort et toujours la meilleure !";
+							}
+							else {
+								endMessage = "Les loups ont gagné ! Quelle tristesse...";
+							}
+							postGameMessage(endMessage).then(function () {
+								defer.reject();
+							});
+						}
 					});
 				});
 			});
