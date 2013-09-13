@@ -2,38 +2,101 @@
 
 	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]),
 		firebaseRef = new Firebase(LG_FIREBASE_URL),
-		NIGHT_DURATION = 10;
+		everythingReady;
+
+	app.constant('NIGHT_DURATION', 15);
 
 
-	app.config(function($routeProvider)
-	{
-		$routeProvider
-			.when('/login', { templateUrl: 'user/login.html' })
-			.when('/profile', { templateUrl: 'user/profile.html', authRequired: true })
-			.when('/game', { templateUrl: 'game/game.html', authRequired: true })
-			.when('/admin', { templateUrl: 'game/admin.html', authRequired: true })
-			.otherwise({ redirectTo: '/game' });
-	});
+	/**
+	 * Initialization code:
+	 * - user login (auto or not)
+	 * - load game objects from Firebase server
+	 * The 'global everythingReady' deferred is resolved when everything is ready.
+	 */
+	app.run(function (angularFire, angularFireCollection, angularFireAuth, $rootScope, $q) {
+		console.log("run");
+		everythingReady = $q.defer();
 
+		//
+		// Init user
+		//
 
-	app.run(function (angularFire, angularFireAuth, $rootScope) {
+		var gameObjectsLoaded = false;
 		$rootScope.$on('angularFireAuth:login', function (event, user) {
 			console.log("angularFireAuth:login: user=", user);
+
+			$rootScope.$watch('userInfo', function (info, old) {
+				if (info && info !== old) {
+					console.log("$watch(userInfo): userInfo=", info);
+					angular.extend($rootScope.user, info);
+					if (! gameObjectsLoaded) {
+						gameObjectsLoaded = true;
+						loadGameObjects().then(function () {
+							everythingReady.resolve();
+						});
+					}
+				}
+			}, true);
+
 			angularFire(firebaseRef.child('users/' + user.id), $rootScope, 'userInfo');
 		});
-
-		$rootScope.$watch('userInfo', function (info) {
-			console.log("watch userInfo: ", info);
-			if (info) {
-				angular.extend($rootScope.user, info);
-			}
-		}, true);
 
 		angularFireAuth.initialize(firebaseRef, {
 			'scope' : $rootScope,
 			'path': '/login',
 			'name' : 'user'
 		});
+
+		function loadGameObjects ()
+		{
+			console.log("loadGameObjects");
+			var playersReadyDefered = $q.defer(),
+				messagesReadyDefered = $q.defer(),
+				promises = [];
+
+			promises.push(playersReadyDefered.promise);
+			promises.push(messagesReadyDefered.promise);
+			promises.push(angularFire(firebaseRef.child('users'), $rootScope, 'users', {}));
+			promises.push(angularFire(firebaseRef.child('game'), $rootScope, 'game', {}));
+
+			$rootScope.$watchCollection('messages', function (messages) {
+				if (messages) {
+					messagesReadyDefered.resolve(messages);
+				}
+			});
+			$rootScope.messages = angularFireCollection(firebaseRef.child('game/messages'));
+
+			$rootScope.$watchCollection('players', function (players) {
+				if (players) {
+					playersReadyDefered.resolve(players);
+				}
+			});
+			$rootScope.players = angularFireCollection(firebaseRef.child('game/players'));
+
+			return $q.all(promises);
+		}
+	});
+
+
+	/**
+	 * Service that returns a Promise when everything is ready (used in route resolver).
+	 */
+	app.factory('WaitEverythingReady', function () {
+		return everythingReady.promise;
+	});
+
+
+	/**
+	 * Configure routes.
+	 */
+	app.config(function($routeProvider)
+	{
+		$routeProvider
+			.when('/login', { templateUrl: 'user/login.html' })
+			.when('/profile', { templateUrl: 'user/profile.html', authRequired: true, resolve: { 'user': 'WaitEverythingReady' } })
+			.when('/game', { templateUrl: 'game/game.html', authRequired: true, resolve: { 'user': 'WaitEverythingReady' } })
+			.when('/admin', { templateUrl: 'game/admin.html', authRequired: true, resolve: { 'user': 'WaitEverythingReady' } })
+			.otherwise({ redirectTo: '/game' });
 	});
 
 
@@ -75,36 +138,6 @@
 	 */
 	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location, $q, $timeout, lgCharacters) {
 
-		// Bindings
-		var playersReadyDefered = $q.defer();
-		bind($rootScope, 'users', 'users');
-		bind($rootScope, 'game', 'game');
-
-		$rootScope.$watchCollection('players', function (players) {
-			if (players) {
-				playersReadyDefered.resolve(players);
-			}
-		});
-		$rootScope.players = bindCollection('game/players');
-
-
-		//
-		// Firebase binding methods
-		//
-
-		function bind ($scope, name, path) {
-			var ref = path ? firebaseRef.child(path) : firebaseRef;
-			return angularFire(ref, $scope, name);
-		}
-
-		function bindUser ($scope, name) {
-			return bind($scope, name, 'users/' + $rootScope.user.id);
-		}
-
-		function bindCollection (path, callback) {
-			return angularFireCollection(firebaseRef.child(path), callback);
-		}
-
 		//
 		// Login and logout
 		//
@@ -120,6 +153,7 @@
 			angularFireAuth.logout();
 			$location.path('/login');
 		}
+		$rootScope.logout = logout;
 
 		//
 		// Game process methods
@@ -130,22 +164,20 @@
 		}
 
 		function joinGame () {
-
-			function doJoin () {
-				var joinRef = $rootScope.players.add({
-					'user'   : $rootScope.user.id,
-					'status' : 'ALIVE',
-					'voteFor': null
-				});
-				console.log("Join id: ", joinRef.name());
-				$rootScope.userInfo.joinRef = joinRef.name();
-			}
-
-			playersReadyDefered.promise.then(doJoin);
+			var joinRef = $rootScope.players.add({
+				'user'   : $rootScope.user.id,
+				'status' : 'ALIVE',
+				'voteFor': null
+			});
+			console.log("Join id: ", joinRef.name());
+			$rootScope.userInfo.joinRef = joinRef.name();
 		}
 
 		function quitGame () {
-			delete $rootScope.userInfo.joinRef;
+			console.log("quitGame for: ", $rootScope.userInfo.joinRef);
+			if ($rootScope.userInfo.joinRef) {
+				delete $rootScope.userInfo.joinRef;
+			}
 		}
 
 		function prepareGame () {
@@ -175,29 +207,40 @@
 				}
 			}
 
-			angular.forEach($rootScope.game.players, function (player) {
+			var promises = [];
+
+			angular.forEach($rootScope.players, function (player) {
+				var deferred = $q.defer();
 				var r = Math.floor(Math.random()*list.length);
 				player.role = list[r];
+				$rootScope.players.update(player, function () {
+					resolveDefer(deferred);
+				});
 				console.log("Assigning ", player.role, " to ", player);
 				list.splice(r, 1);
+				promises.push(deferred.promise);
 			});
+
+			return $q.all(promises);
 		}
 
 		function beginGame (selectedChars) {
-			assignCharacters(selectedChars);
-			$rootScope.game.status = 'RUNNING';
-			$rootScope.game.time = 'N';
-			$location.path('/game');
+			assignCharacters(selectedChars).then(function () {
+				console.log("All chars assigned and synced!");
+				postGameMessage("La partie vient de commencer ! Bon jeu et... bonne chance !");
+				beginNight();
+				$rootScope.game.status = 'RUNNING';
+				$location.path('/game');
+			});
 		}
 
 		function initUserPlayer () {
-			playersReadyDefered.promise.then(function () {
-				var player = $rootScope.players.getByName($rootScope.user.joinRef);
-				$rootScope.me = {
-					'char'   : angular.copy(lgCharacters.characterById(player.role)),
-					'player' : player
-				};
-			});
+			console.log("initUserPlayer");
+			var player = $rootScope.players.getByName($rootScope.user.joinRef);
+			$rootScope.me = {
+				'char'   : angular.copy(lgCharacters.characterById(player.role)),
+				'player' : player
+			};
 		}
 
 		//
@@ -205,19 +248,32 @@
 		//
 
 		function beginDay () {
-			$rootScope.game.time = 'D';
+			resetVotes().then(function () {
+				$rootScope.game.time = 'D';
+			});
+		}
+
+		function endDay () {
+			killVotedPlayer();
 		}
 
 		function beginNight () {
-			resetVotes();
-			$rootScope.game.time = 'N';
+			resetVotes().then(function () {
+				$rootScope.game.time = 'N';
+			});
 		}
 
-
 		function resetVotes () {
-			angular.forEach($rootScope.game.players, function (p) {
+			var promises = [];
+			angular.forEach($rootScope.players, function (p) {
+				var deferred = $q.defer();
 				p.voteFor = null;
+				$rootScope.players.update(p, function () {
+					resolveDefer(deferred);
+				});
+				promises.push(deferred.promise);
 			});
+			return $q.all(promises);
 		}
 
 
@@ -251,100 +307,139 @@
 		$rootScope.isAlive = isAlive;
 
 
-		function iAmDead() {
+		function iAmDead () {
 			return $rootScope.me && isDead($rootScope.me.player);
 		}
 		$rootScope.iAmDead = iAmDead;
 
 
-		function iAmAlive() {
+		function iAmAlive () {
 			return $rootScope.me && isAlive($rootScope.me.player);
 		}
 		$rootScope.iAmAlive = iAmAlive;
 
 
+		//
+		// Chat
+		//
 
-		$rootScope.$on('LG:NightIsOver', function () {
+		function postMessage (msg) {
+			var defer = $q.defer();
+			$rootScope.messages.add({
+				sender: $rootScope.user.id,
+				body: msg,
+				date: new Date().getTime(),
+				time: $rootScope.game.time,
+				team: $rootScope.me ? $rootScope.me.char.team : '',
+				dead: iAmDead()
+			}, function () {
+				resolveDefer(defer);
+			});
+			return defer.promise;
+		}
+
+		function postGameMessage (msg) {
+			var defer = $q.defer();
+			$rootScope.messages.add({
+				sender: 'system',
+				body: msg,
+				date: new Date().getTime(),
+				time: $rootScope.game.time
+			}, function () {
+				resolveDefer(defer);
+			});
+			return defer.promise;
+		}
+
+
+		function resolveDefer (defer) {
+			$timeout(function () {
+				defer.resolve();
+			});
+		}
+
+
+		function killVotedPlayer ()
+		{
+			var votesByPlayer = {};
+			angular.forEach($rootScope.players, function (p) {
+				if (p.voteFor) {
+					votesByPlayer[p.voteFor] = (votesByPlayer[p.voteFor] || 0) + 1;
+				}
+			});
+			console.log(votesByPlayer);
+
+			var maxVotes = 0, deads = [], dead = null;
+			// Get max value for votes
+			angular.forEach(votesByPlayer, function (count) {
+				maxVotes = Math.max(maxVotes, count);
+			});
+			if (maxVotes > 0) {
+				// Get which players have this vote count
+				angular.forEach(votesByPlayer, function (count, playerId) {
+					if (count === maxVotes) {
+						deads.push(playerId);
+					}
+				});
+			}
+
+			if (deads.length === 1) {
+				dead = deads[0];
+			}
+			// Multiple loosers
+			else if (deads.length > 1) {
+				dead = deads[Math.floor(Math.random()*deads.length)];
+			}
+
+			if (! dead) {
+				return postGameMessage("Personne n'est mort ! Quel paisible village...");
+			}
+			else {
+				return killPlayer(dead);
+			}
+		}
+
+
+		$rootScope.$on('LG:NightIsOver', function ()
+		{
 			console.log("Nuit terminée !");
 			// Only the game master's client will end the night.
 			if (isGameMaster()) {
 				console.log("Maître du jeu -> terminer la nuit...");
-
-				var votesByPlayer = {};
-				angular.forEach($rootScope.players, function (p) {
-					if (p.voteFor) {
-						votesByPlayer[p.voteFor] = (votesByPlayer[p.voteFor] || 0) + 1;
-					}
-				});
-				console.log(votesByPlayer);
-
-				var maxVotes = 0, loosers = [], looser = null;
-				// Get max value for votes
-				angular.forEach(votesByPlayer, function (count) {
-					maxVotes = Math.max(maxVotes, count);
-				});
-				if (maxVotes > 0) {
-					// Get which players have this vote count
-					angular.forEach(votesByPlayer, function (count, playerId) {
-						if (count === maxVotes) {
-							loosers.push(playerId);
-						}
-					});
-				}
-				console.log("loosers of the night: ", loosers);
-
-				if (loosers.length === 1) {
-					looser = loosers[0];
-				}
-				// Multiple loosers
-				else if (loosers.length > 1) {
-					looser = loosers[Math.floor(Math.random()*loosers.length)];
-				}
-
-				if (! looser) {
-					console.log("Aucun perdant !");
-				}
-				else {
-					killPlayer(looser);
-				}
-
+				killVotedPlayer().then(beginDay);
 			}
 		});
 
 
 		function myTeamIs(team) {
-			return $rootScope.me && $rootScope.me.char.team === team;
+			return $rootScope.me && $rootScope.me.char && $rootScope.me.char.team === team;
 		}
 		$rootScope.myTeamIs = myTeamIs;
 
 
 		function killPlayer (pId) {
 			console.log("killing player ", pId);
+			var defer = $q.defer();
+			console.log("killing player ", pId);
 			var looser = $rootScope.players.getByName(pId);
 			looser.status = 'DEAD';
-			$rootScope.players.update(looser);
-
-			if ($rootScope.me.player.$id === pId) {
-				console.log("Hey, it's me :(");
-				$rootScope.me.player.status = 'DEAD';
-			}
+			$rootScope.players.update(looser, function () {
+				console.log("killed player synced!");
+				$timeout(function () {
+					postGameMessage("Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong> est mort. Paix à son âme !").then(function () {
+						console.log("message posted! resolving...");
+						defer.resolve();
+					});
+				});
+			});
+			return defer.promise;
 		}
-
-
-
-
-
 
 		//
 		// Public API
 		//
 
 		return {
-			user : $rootScope.user,
-
-			bind : bind,
-			bindUser : bindUser,
-			bindCollection : bindCollection,
 
 			// Login/logout
 			login : login,
@@ -365,28 +460,18 @@
 			beginNight : beginNight,
 			isNight : isNight,
 			isDay : isDay,
+			endDay : endDay,
 
 			isDead : isDead,
 			isAlive : isAlive,
 
 			iAmDead : iAmDead,
 			iAmAlive : iAmAlive,
-			myTeamIs : myTeamIs
+			myTeamIs : myTeamIs,
+
+			postMessage : postMessage
 		};
 
-	});
-
-
-	app.controller('NavBarController', function (LG, $scope, $rootScope) {
-		$rootScope.$watch('user', function (user, old) {
-			if (user) {
-				LG.bindUser($scope, 'userInfo');
-			}
-		}, true);
-
-		$scope.logout = function () {
-			LG.logout();
-		};
 	});
 
 

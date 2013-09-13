@@ -7,6 +7,7 @@
 
 	app.controller('ProfileController', function (LG, $scope, $rootScope)
 	{
+/*
 		$scope.userInfo = {};
 		LG.bindUser($scope, 'userInfo');
 		$scope.$watch('userInfo', function (info, old) {
@@ -22,7 +23,7 @@
 		$scope.hasChanges = function () {
 			return angular.equals($scope.userInfo, $scope.profile);
 		};
-
+*/
     });
 
 

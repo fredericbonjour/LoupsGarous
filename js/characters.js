@@ -13,25 +13,27 @@
 				'multiple' : true
 			},
 			{
-				'id' : 'vill',
+				'id' : 'villageois',
 				'name' : 'villageois',
 				'desc' : "Vous n'avez pas de pouvoir particulier. Survivez aux loups pour remporter la victoire !",
 				'team' : 'V',
 				'multiple' : true
 			},
 			{
-				'id' : 'sorc',
+				'id' : 'sorciere',
 				'name' : 'sorcière',
 				'desc' : "Vous disposez de deux potions magiques : une potion de vie pour ressuciter un joueur tué par les loups-garous, et une potion de mort pour éliminer un joueur. Survivez aux loups pour remporter la victoire !",
 				'team' : 'V',
-				'multiple' : false
+				'multiple' : false,
+				'phase' : 'sorciere'
 			},
 			{
-				'id' : 'voya',
+				'id' : 'voyante',
 				'name' : 'voyante',
 				'desc' : "Chaque nuit, vous aurez l'occasion de découvrir l'identité d'un joueur de votre choix. Survivez aux loups pour remporter la victoire !",
 				'team' : 'V',
-				'multiple' : false
+				'multiple' : false,
+				'phase' : 'voyante'
 			}
 		];
 

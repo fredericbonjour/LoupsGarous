@@ -74,7 +74,19 @@
 
 			'link' : function (scope, iElement)
 			{
-				scope.sender = $rootScope.users[scope.message.sender];
+				if (scope.message.sender === 'system') {
+					scope.sender = {
+						'name' : "Message du système",
+						'avatar' : 'system.png'
+					};
+					iElement.addClass('system-message');
+				}
+				else {
+					scope.sender = $rootScope.users[scope.message.sender];
+					if ($rootScope.user.id == scope.message.sender) {
+						iElement.addClass('me');
+					}
+				}
 				scope.trustedBody = $sce.trustAsHtml(lgSmileys.parse(scope.message.body));
 				/* FIXME
 				scope.sameSender = previousSender == scope.message.sender;
@@ -264,7 +276,7 @@
 				$rootScope.$watch('game.time', function () {
 					if (LG.isNight()) {
 						angular.forEach($rootScope.players, function (player, id) {
-							if (player.role === 'vill') {
+							if (player.role === 'villageois') {
 								scope.players[id] = player;
 							}
 						});
@@ -333,6 +345,7 @@
 					'<div class="panel-body">' +
 						'<button type="button" class="btn btn-danger btn-block" ng-click="stopGame()">Arrêter la partie</button>' +
 						'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="beginDay()"><i class="icon-sun"></i> Le jour se lève !</button>' +
+						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="endDay()"><i class="icon-sun"></i> Terminer la journée</button>' +
 						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="beginNight()"><i class="icon-moon"></i> La nuit tombe !</button>' +
 					'</div>' +
 				'</div>',
@@ -350,6 +363,10 @@
 					LG.beginDay();
 				};
 
+				scope.endDay = function () {
+					LG.endDay();
+				};
+
 				scope.beginNight = function () {
 					LG.beginNight();
 				};
@@ -357,7 +374,7 @@
 		}
 	});
 
-	app.directive('lgTimer', function ($rootScope, $timeout) {
+	app.directive('lgTimer', function ($rootScope, $timeout, NIGHT_DURATION) {
 		return {
 			'restrict' : 'A',
 			'template' :
@@ -385,9 +402,8 @@
 				}
 
 				$rootScope.$watch('game.time', function (value, old) {
-					console.log("game.time=", value, old);
 					if (value === 'N' && old === 'D') {
-						scope.time = 10 + 1;
+						scope.time = NIGHT_DURATION + 1;
 						stop();
 						tick();
 					}

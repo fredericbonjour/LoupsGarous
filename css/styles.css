@@ -26,6 +26,11 @@ body {
 	border-top: 1px solid #EEEEEE;
 }
 
+[lg-message].system-message {
+	border-top: 4px solid silver;
+	border-bottom: 4px solid silver;
+}
+
 [lg-message].me {
 	background: #eeeeee;
 }

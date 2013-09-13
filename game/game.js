@@ -3,21 +3,12 @@
 	var app = angular.module("LoupsGarous");
 
 
-	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope) {
+	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope)
+	{
 		console.log("GameController");
 
-		// Bindings
-		$scope.messages = LG.bindCollection('game/messages');
-
 		$scope.addMessage = function () {
-			$scope.messages.add({
-				sender: $rootScope.user.id,
-				body: $scope.msg,
-				date: new Date().getTime(),
-				time: $rootScope.game.time,
-				team: $scope.me ? $scope.me.char.team : '',
-				dead: LG.isDead($scope.me.player)
-			});
+			LG.postMessage($scope.msg);
 			$scope.msg = "";
 		};
 
@@ -25,30 +16,47 @@
 		$scope.quitGame = LG.quitGame;
 
 		$rootScope.$watch('game.status', function (status, previous) {
+			console.log("GameController: game.status=", status, ", prev=", previous);
+
 			if (previous === 'PREPARING' && status === 'WAITING') {
 				LG.quitGame();
 			}
+			// Game has just started!
 			else if (status === 'RUNNING') {
+				console.log("GameController: game.status=RUNNING, joinRef=", $rootScope.user.joinRef);
 				if ($rootScope.user.joinRef) {
 					LG.initUserPlayer();
 				}
 				else {
 					console.log("Il semblerait que vous ne soyez pas dans la partie :(");
 				}
-
 			}
-			else if (previous === 'RUNNING') {
-				LG.quitGame();
+			else if (previous === 'RUNNING' && status !== previous) {
+				console.log("QUIT ??");
+				// LG.quitGame();
 			}
 		}, true);
 
 
 		$rootScope.$watch('game.time', function (value, old) {
+			// night -> day
 			if (value === 'N' && old === 'D') {
 				console.log("Game time: ", value, " (old=", old, ")");
 				$rootScope.me.player.voteFor = null;
 			}
 		}, true);
+
+/*
+		$rootScope.$watch('game.phase', function (phase) {
+			if (phase) {
+				console.log("game phase=", phase);
+				if (phase === $rootScope.me.character.phase) {
+
+				}
+			}
+		}, true);
+*/
+
 
 		$scope.availableMessages = function () {
 			var messages = [];
@@ -68,16 +76,13 @@
 	});
 
 
-	app.controller('NewGameController', function (LG, $scope, $rootScope, $location, $timeout) {
-
-
+	app.controller('NewGameController', function (LG, $scope, $rootScope)
+	{
 		$scope.gameData = {};
 
 		// Actions
 		$scope.createGame = function () {
-			$rootScope.players = LG.bindCollection('game/players', function () {
-				$rootScope.game.status = 'WAITING';
-			});
+			$rootScope.game.status = 'WAITING';
 		};
 
 		$scope.joinGame = LG.joinGame;
