@@ -90,17 +90,6 @@
 		$scope.cancelGame = LG.cancelGame;
 		$scope.stopGame = LG.stopGame;
 
-		$scope.countPlayers = function () {
-			if ($scope.game && $scope.game.players) {
-				var count = 0;
-				angular.forEach($scope.game.players, function () {
-					count++;
-				});
-				return count;
-			}
-			return 0;
-		};
-
 		$scope.beginGame = function () {
 			LG.beginGame($scope.gameData.selectedChars);
 		};

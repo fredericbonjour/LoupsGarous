@@ -15,6 +15,14 @@
 				<button type="button" class="btn btn-primary" ng-hide="userInfo.joinRef" ng-click="joinGame()"><i class="icon-play"></i> Rejoindre</button>
 				<button type="button" class="btn btn-danger" ng-hide="! userInfo.joinRef" ng-click="quitGame()"><i class="icon-stop"></i> Quitter</button>
 			</p>
+
+			<div class="panel panel-info">
+				<div class="panel-heading" ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></div>
+				<div class="panel-body">
+					<div ng-repeat="player in game.players" lg-user="player.user"></div>
+				</div>
+			</div>
+
 		</div>
 
 		<div ng-switch-when="PREPARING">

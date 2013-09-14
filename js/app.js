@@ -443,6 +443,20 @@
 		}
 
 
+		function countPlayers () {
+			if ($rootScope.game && $rootScope.game.players) {
+				var count = 0;
+				angular.forEach($rootScope.game.players, function () {
+					count++;
+				});
+				return count;
+			}
+			return 0;
+		}
+		$rootScope.countPlayers = countPlayers;
+
+
+
 		$rootScope.$on('LG:NightIsOver', function ()
 		{
 			console.log("Nuit terminée !");
@@ -492,7 +506,11 @@
 			$rootScope.players.update(looser, function () {
 				console.log("killed player synced!");
 				$timeout(function () {
-					postGameMessage("Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong> est mort. Paix à son âme !").then(function () {
+					postGameMessage(
+						"Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong>" +
+						" (qui était <strong>" + lgCharacters.characterById(looser.role).name + "</strong>" +
+						" est mort. Paix à son âme !"
+					).then(function () {
 						console.log("message posted! resolving...");
 						var end = checkEndOfGame(), endMessage;
 						if (! end) {

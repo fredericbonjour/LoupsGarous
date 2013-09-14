@@ -4,10 +4,12 @@
 		<p>
 			<a class="btn btn-default btn-block" href="#/game"><i class="icon-arrow-left"></i> Retourner au jeu</a>
 		</p>
-		<div class="alert alert-info">
-			<h4 style="margin-bottom:0; text-align: center;" ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></h4>
+		<div class="panel panel-info">
+			<div class="panel-heading" ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></div>
+			<div class="panel-body">
+				<div ng-repeat="player in game.players" lg-user="player.user"></div>
+			</div>
 		</div>
-		<div ng-repeat="player in game.players" lg-user="player.user"></div>
 	</div>
 
 	<div class="col-md-9" ng-switch="game.status">
