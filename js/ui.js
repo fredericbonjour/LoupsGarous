@@ -255,9 +255,9 @@
 							'<div ng-pluralize="" count="mostVotedPlayers.length" when="{\'0\':\'Aucun vote pour le moment\', \'one\':\'Le plus voté :\', \'other\':\'Les {} plus votés :\'}"></div>' +
 							'<span class="label label-danger" ng-repeat="p in mostVotedPlayers">{{ users[game.players[p].user].name }}</span>' +
 						'</li>' +
-						'<li class="list-group-item" ng-class="{\'me\':p.$id==me.player.$id, \'active\':p.$id == me.player.voteFor}" ng-repeat="(name,p) in players">' +
+						'<li style="cursor:pointer;" class="list-group-item" ng-click="toggleVote(p)" ng-class="{\'me\':p.$id==me.player.$id, \'active\':p.$id == me.player.voteFor}" ng-repeat="(name,p) in players">' +
 							'<span class="pull-right votes-count" ng-class="{\'text-muted\':countVotes(p)==0}">{{ countVotes(p) }}</span>' +
-							'<button ng-click="toggleVote(p)" ng-disabled="isDead(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'active\': p.$id == me.player.voteFor && isAlive(p), \'btn-danger\': p.$id==me.player.$id}" type="button"><i ng-class="{true:\'icon-thumbs-up\', false:\'icon-ban-circle\'}[isAlive(p)]"></i></button>' +
+							//'<button ng-click="toggleVote(p)" ng-disabled="isDead(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'active\': p.$id == me.player.voteFor && isAlive(p), \'btn-danger\': p.$id==me.player.$id}" type="button"><i ng-class="{true:\'icon-thumbs-up\', false:\'icon-ban-circle\'}[isAlive(p)]"></i></button>' +
 							' <strong>{{ users[p.user].name }}</strong>' +
 							'<span ng-if="p.$id==me.player.$id" class="text-muted"> (vous)</span>' +
 							'<br/><small>' +
@@ -290,14 +290,16 @@
 
 				scope.toggleVote = function (player)
 				{
-					var me = $rootScope.me.player;
-					if (me.voteFor === player.$id) {
-						me.voteFor = null;
+					if ($rootScope.isAlive(player)) {
+						var me = $rootScope.me.player;
+						if (me.voteFor === player.$id) {
+							me.voteFor = null;
+						}
+						else {
+							me.voteFor = player.$id;
+						}
+						$rootScope.players.update(me);
 					}
-					else {
-						me.voteFor = player.$id;
-					}
-					$rootScope.players.update(me);
 				};
 
 				scope.votesByPlayer = {};
