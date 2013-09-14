@@ -7,13 +7,12 @@
 
 	app.controller('ProfileController', function (LG, $scope, $rootScope)
 	{
-/*
 		$scope.userInfo = {};
 		LG.bindUser($scope, 'userInfo');
 		$scope.$watch('userInfo', function (info, old) {
-	        if (info !== old) {
+			if (info !== old) {
 				$scope.profile = angular.copy(info);
-	        }
+			}
 		});
 
 		$scope.save = function () {
@@ -23,8 +22,7 @@
 		$scope.hasChanges = function () {
 			return angular.equals($scope.userInfo, $scope.profile);
 		};
-*/
-    });
+	});
 
 
 	app.controller('LoginController', function ($scope, $location, LG)

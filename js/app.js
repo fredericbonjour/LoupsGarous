@@ -1,6 +1,6 @@
 (function (Firebase) {
 
-	var app = angular.module("LoupsGarous", ["ngRoute", "firebase"]),
+	var app = angular.module("LoupsGarous", ["ngRoute", "ngAnimate", "firebase"]),
 		firebaseRef = new Firebase(LG_FIREBASE_URL),
 		everythingReady;
 
@@ -124,8 +124,8 @@
 		return {
 			parse : function (input) {
 				angular.forEach(smileys, function (name, symbol) {
-					var regexp = new RegExp(symbol, "ig");
-					input = input.replace(regexp, ':' + name + ':');
+					var regexp = new RegExp("\\s+"+symbol, "ig");
+					input = input.replace(regexp, ' :' + name + ':');
 				});
 				return input.replace(/:([a-z]+):/g, '<i class="icon-smiley-$1"></i>');
 			}
@@ -178,6 +178,7 @@
 		function quitGame () {
 			console.log("quitGame for: ", $rootScope.userInfo.joinRef);
 			if ($rootScope.userInfo.joinRef) {
+				$rootScope.players.remove($rootScope.userInfo.joinRef);
 				delete $rootScope.userInfo.joinRef;
 			}
 		}
@@ -192,9 +193,7 @@
 
 		function stopGame () {
 			$rootScope.game.status = 'STOPPED';
-			$timeout(function () {
-				new Firebase(LG_FIREBASE_URL + 'game/players').remove();
-			});
+			$rootScope.game.time = 'D';
 		}
 
 
@@ -350,15 +349,29 @@
 		//
 
 		function postMessage (msg) {
-			var defer = $q.defer();
-			$rootScope.messages.add({
-				sender: $rootScope.user.id,
-				body: msg,
-				date: new Date().getTime(),
-				time: $rootScope.game.time,
-				team: $rootScope.me ? $rootScope.me.char.team : '',
-				dead: iAmDead()
-			}, function () {
+			var defer = $q.defer(), msgObj;
+
+			if ($rootScope.game.status === 'STOPPED') {
+				msgObj = {
+					sender: $rootScope.user.id,
+					body: msg,
+					date: new Date().getTime(),
+					time: 'D',
+					team: ''
+				};
+			}
+			else {
+				msgObj = {
+					sender: $rootScope.user.id,
+					body: msg,
+					date: new Date().getTime(),
+					time: $rootScope.game.time,
+					team: $rootScope.me ? $rootScope.me.char.team : '',
+					dead: iAmDead()
+				};
+			}
+
+			$rootScope.messages.add(msgObj, function () {
 				resolveDefer(defer);
 			});
 			return defer.promise;
@@ -389,6 +402,7 @@
 
 		function resetGame ()
 		{
+			quitGame();
 			return $q.all([
 				clearMessages(),
 				clearPlayers()
@@ -506,10 +520,14 @@
 			$rootScope.players.update(looser, function () {
 				console.log("killed player synced!");
 				$timeout(function () {
+					var char = lgCharacters.characterById(looser.role);
 					postGameMessage(
+						"<span class=\"dead pull-left\"><img class=\"card\" src=\"images/cartes/" + looser.role + ".png\"/>" +
+						"<span class=\"cross\"></span></span>" +
 						"Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong>" +
-						" (qui était <strong>" + lgCharacters.characterById(looser.role).name + "</strong>" +
-						" est mort. Paix à son âme !"
+						" (qui était <strong>" + char.name + "</strong>)" +
+						" est mort.<br/>" +
+						(char.team === 'L' ? "Et hop : un d'moins !" : "Paix à son âme !")
 					).then(function () {
 						console.log("message posted! resolving...");
 						var end = checkEndOfGame(), endMessage;

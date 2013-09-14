@@ -198,11 +198,11 @@
 			'template' :
 				'<figure class="character clearfix">' +
 					'<img class="card" ng-src="images/cartes/{{ character.id }}.png"/>' +
+					'<h4 ng-click="showDesc=!showDesc" style="cursor:pointer;"><i ng-class="{true:\'icon-chevron-sign-up\',false:\'icon-chevron-sign-down\'}[showDesc]"></i> {{ character.name }}</h4>' +
 					'<figcaption>' +
-					'<h4>{{ character.name }}</h4>' +
-					'<p>{{ character.desc }}</p>' +
+					'<p ng-show="showDesc">{{ character.desc }}</p>' +
 					'</figcaption>' +
-					'</figure>',
+				'</figure>',
 			'replace'  : true,
 			'scope' : {
 				character : '=lgCharacter'
@@ -210,6 +210,7 @@
 
 			'link' : function (scope, iElement, iAttrs, ctrl)
 			{
+				scope.showDesc = false;
 			}
 		}
 	});
@@ -250,22 +251,23 @@
 				'<div class="panel panel-default">' +
 					'<div class="panel-heading"><h4><i class="icon-group"></i> Joueurs</h4></div>' +
 					'<ul class="list-group">' +
-						'<li class="list-group-item" ng-class="{\'active\':p.$id==me.player.$id}" ng-repeat="(name,p) in players">' +
+						'<li class="list-group-item">' +
+							'<div ng-pluralize="" count="mostVotedPlayers.length" when="{\'0\':\'Aucun vote pour le moment\', \'one\':\'Le plus voté :\', \'other\':\'Les {} plus votés :\'}"></div>' +
+							'<span class="label label-danger" ng-repeat="p in mostVotedPlayers">{{ users[game.players[p].user].name }}</span>' +
+						'</li>' +
+						'<li class="list-group-item" ng-class="{\'me\':p.$id==me.player.$id, \'active\':p.$id == me.player.voteFor}" ng-repeat="(name,p) in players">' +
 							'<span class="pull-right votes-count" ng-class="{\'text-muted\':countVotes(p)==0}">{{ countVotes(p) }}</span>' +
-							'<button ng-click="toggleVote(p)" ng-disabled="isDead(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'btn-success\': p.$id == me.player.voteFor && isAlive(p)}" type="button"><i ng-class="{true:\'icon-thumbs-up\', false:\'icon-ban-circle\'}[isAlive(p)]"></i></button>' +
+							'<button ng-click="toggleVote(p)" ng-disabled="isDead(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'active\': p.$id == me.player.voteFor && isAlive(p), \'btn-danger\': p.$id==me.player.$id}" type="button"><i ng-class="{true:\'icon-thumbs-up\', false:\'icon-ban-circle\'}[isAlive(p)]"></i></button>' +
 							' <strong>{{ users[p.user].name }}</strong>' +
+							'<span ng-if="p.$id==me.player.$id" class="text-muted"> (vous)</span>' +
 							'<br/><small>' +
 							'<span ng-if="isDead(p)">est mort</span>' +
 							'<span ng-if="isAlive(p) && !p.voteFor">n\'a pas encore voté</span>' +
-							'<span ng-if="isAlive(p) && p.voteFor && p.$id == p.voteFor"><i class="icon-arrow-right"></i> lui-même</span>' +
+							'<span ng-if="isAlive(p) && p.voteFor && p.$id == p.voteFor">se suicide...</span>' +
 							'<span ng-if="isAlive(p) && p.voteFor && p.$id != p.voteFor"><i class="icon-arrow-right"></i> {{users[game.players[p.voteFor].user].name}}</span>' +
 							'</small>' +
 						'</li>' +
 					'</ul>' +
-					'<div class="panel-footer">' +
-						'<div ng-pluralize="" count="mostVotedPlayers.length" when="{\'0\':\'Aucun vote pour le moment\', \'one\':\'Le plus voté :\', \'other\':\'Les {} plus votés :\'}"></div>' +
-						'<span class="label label-danger" ng-repeat="p in mostVotedPlayers">{{ users[game.players[p].user].name }}</span>' +
-					'</div>' +
 				'</div>',
 			scope : true,
 

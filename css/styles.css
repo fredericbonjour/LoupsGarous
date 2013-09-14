@@ -19,6 +19,35 @@ body {
 	font-size: 16px;
 }
 
+
+.media-list.messages .dead img.card {
+	border: 4px solid #444444;
+	border-radius: 4px 4px 4px 4px;
+	margin-right: 10px;
+	width: 48px;
+	height: 48px;
+}
+
+.media-list.messages .dead {
+	position: relative;
+}
+
+.media-list.messages .dead .cross {
+	background: url('../images/dead-cross.png');
+	width: 34px;
+	height: 40px;
+	position: absolute;
+	left: 7px;
+	top: 4px;
+	opacity: 0.8;
+	display: block;
+}
+
+.media-list.messages small.pull-right {
+	margin-left: 10px;
+}
+
+
 [lg-message] {
 	padding: 5px 10px;
 	margin: 5px 0;
@@ -27,8 +56,10 @@ body {
 }
 
 [lg-message].system-message {
-	border-top: 4px solid silver;
-	border-bottom: 4px solid silver;
+	border-left: 10px solid #EEEEEE;
+	border-right: 10px solid #EEEEEE;
+	border-bottom: 1px solid #EEEEEE;
+	margin: 10px 0;
 }
 
 [lg-message].me {
@@ -69,6 +100,7 @@ body {
 	display: block;
 	position: relative;
 	text-align: right;
+	margin-bottom: 20px;
 }
 
 .character.select {
@@ -105,14 +137,40 @@ body {
 	margin-right: 10px;
 }
 
+.character img + h4 {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	color: #FFFFFF;
+	font-family: 'Lobster Two',cursive;
+	font-size: 140%;
+	height: 50px;
+	line-height: 40px;
+	margin-bottom: 40px;
+	padding: 8px;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	top: 108px;
+	width: 166px;
+	z-index: 10;
+	background: rgba(0, 0, 0, 0.4); /* Old browsers */
+	background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, #000000 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,#000000 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,#000000 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,#000000 100%); /* W3C */
+
+}
+
 .character figcaption {
 	font-size: 120%;
 	font-family: 'Lobster Two', cursive;
+	padding: 5px 0;
 }
 
-.character figcaption h4 {
-	font-size: 140%;
-	font-family: 'Lobster Two', cursive;
+.character figcaption p {
+	margin: 0;
 }
 
 img.card {
@@ -129,6 +187,15 @@ img.card {
 .list-group-item button.btn-sm {
 	vertical-align: baseline;
 	margin-right: 10px;
+}
+
+[lg-players-poll] .list-group-item.me {
+	background: #cdcaee;
+	border-color: #cdcaee;
+}
+[lg-players-poll] .list-group-item.me.active {
+	background: #D43F3A;
+	border-color: #D43F3A;
 }
 
 .panel-heading h4 {
