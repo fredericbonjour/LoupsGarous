@@ -9,6 +9,12 @@ body {
 
 /* Chat */
 
+#messages {
+	max-height: 400px;
+	min-height: 200px;
+	overflow-y: auto;
+}
+
 .media-list.messages img.media-object {
 	width: 32px;
 	height: 32px;

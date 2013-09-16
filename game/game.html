@@ -85,8 +85,8 @@
 		</div>
 
 		<!-- Chat -->
-		<div class="chat">
-			<ul class="media-list messages">
+		<div>
+			<ul class="media-list messages" id="messages">
 				<li class="media" ng-repeat="msg in availableMessages() | orderBy:'date'" lg-message="msg"></li>
 			</ul>
 			<form ng-show="myTeamIs('L') || isDay() || iAmDead()" name="form" novalidate="" ng-submit="addMessage()">

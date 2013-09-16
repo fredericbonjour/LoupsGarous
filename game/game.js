@@ -3,9 +3,9 @@
 	var app = angular.module("LoupsGarous");
 
 
-	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope)
+	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope, $timeout)
 	{
-		console.log("GameController");
+		var chatView = $('#messages');
 
 		$scope.addMessage = function () {
 			LG.postMessage($scope.msg);
@@ -46,18 +46,7 @@
 			}
 		}, true);
 
-/*
-		$rootScope.$watch('game.phase', function (phase) {
-			if (phase) {
-				console.log("game phase=", phase);
-				if (phase === $rootScope.me.character.phase) {
-
-				}
-			}
-		}, true);
-*/
-
-
+		var prevMessageCount = 0;
 		$scope.availableMessages = function () {
 			var messages = [];
 			if ($scope.game && $scope.game.messages) {
@@ -70,8 +59,25 @@
 					}
 				});
 			}
+			if (messages.length !== prevMessageCount) {
+				var el = document.getElementById("messages");
+				$timeout(function () {
+					el.scrollTop = el.scrollHeight;
+				});
+				prevMessageCount = messages.length;
+			}
 			return messages;
 		};
+
+
+		function resizeHandler () {
+			var height = $(document).innerHeight() - chatView.offset().top - 80;
+			chatView.css('max-height', height+'px');
+			var el = chatView.get(0);
+			el.scrollTop = el.scrollHeight;
+		}
+		$(window).resize(resizeHandler);
+		resizeHandler();
 
 	});
 
