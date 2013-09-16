@@ -1,20 +1,20 @@
 <div class="view-login">
 	<form role="form" name="form" novalidate ng-submit="login()" ng-controller="LoginController">
 
-		<ol class="breadcrumb">
-			<li><a href="#/">Accueil</a></li>
-			<li class="active">Connexion</li>
-		</ol>
+		<div style="text-align: center; margin: 15px 0;">
+			<h3>Les Loups-Garous (rien qu'à nous)</h3>
+			<img src="images/main-screen.png"/>
+		</div>
 
 		<div ng-if="error" class="alert alert-danger">
 			{{ error }}
 		</div>
 
 		<div class="form-group">
-	        <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" autofocus="autofocus" class="form-control" placeholder="Votre prénom" required ng-model="username"/>
+	        <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" autofocus="autofocus" class="form-control" placeholder="Prénom" required ng-model="username"/>
 	    </div>
 	    <div class="form-group">
-	        <input type="password" class="form-control" placeholder="Votre mot de passe" required ng-model="password"/>
+	        <input type="password" class="form-control" placeholder="Mot de passe" required ng-model="password"/>
 	    </div>
 	    <button ng-if="!loggingIn" type="submit" class="btn btn-default" ng-disabled="form.$invalid">Hopla !</button>
 		<button ng-if="loggingIn" type="button" class="btn btn-default" disabled="disabled"><i class="icon-spinner icon-spin"></i> Connexion en cours...</button>
