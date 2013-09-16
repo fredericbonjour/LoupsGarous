@@ -6,8 +6,12 @@
 			<li class="active">Connexion</li>
 		</ol>
 
-	    <div class="form-group">
-	        <input type="text" class="form-control" placeholder="Votre prénom" required ng-model="username"/>
+		<div ng-if="error" class="alert alert-danger">
+			{{ error }}
+		</div>
+
+		<div class="form-group">
+	        <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" autofocus="autofocus" class="form-control" placeholder="Votre prénom" required ng-model="username"/>
 	    </div>
 	    <div class="form-group">
 	        <input type="password" class="form-control" placeholder="Votre mot de passe" required ng-model="password"/>

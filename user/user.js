@@ -25,7 +25,7 @@
 	});
 
 
-	app.controller('LoginController', function ($scope, $location, LG)
+	app.controller('LoginController', function ($scope, $location, LG, $rootScope)
 	{
 		$scope.loggingIn = false;
 		$scope.login = function () {
@@ -34,6 +34,14 @@
 				$location.path('/game');
 			});
 		};
+
+
+		$rootScope.$on("angularFireAuth:error", function(evt, err) {
+			console.log("Oops: ", err);
+			$scope.loggingIn = false;
+			$scope.error = "Ce joueur n'existe pas ou bien le mot de passe n'est pas correct.";
+		});
+
 	});
 
 })();
