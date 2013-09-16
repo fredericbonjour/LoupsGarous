@@ -10,7 +10,6 @@ body {
 /* Chat */
 
 #messages {
-	max-height: 400px;
 	min-height: 200px;
 	overflow-y: auto;
 }

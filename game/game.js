@@ -5,7 +5,8 @@
 
 	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope, $timeout)
 	{
-		var chatView = $('#messages');
+		var chatView = $('#messages'),
+			multitouch = (typeof window.orientation !== 'undefined');
 
 		$scope.addMessage = function () {
 			LG.postMessage($scope.msg);
@@ -59,7 +60,7 @@
 					}
 				});
 			}
-			if (messages.length !== prevMessageCount) {
+			if (! multitouch && messages.length !== prevMessageCount) {
 				var el = document.getElementById("messages");
 				$timeout(function () {
 					el.scrollTop = el.scrollHeight;
@@ -76,9 +77,10 @@
 			var el = chatView.get(0);
 			el.scrollTop = el.scrollHeight;
 		}
-		$(window).resize(resizeHandler);
-		resizeHandler();
-
+		if (! multitouch) {
+			$(window).resize(resizeHandler);
+			resizeHandler();
+		}
 	});
 
 
