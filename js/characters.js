@@ -34,6 +34,14 @@
 				'team' : 'V',
 				'multiple' : false,
 				'phase' : 'voyante'
+			},
+			{
+				'id' : 'cupidon',
+				'name' : 'Cupidon',
+				'desc' : "Lors de la première nuit, vous désignez deux joueurs qui tombent amoureux l'un de l'autre. Lorsque l'un d'eux meurt, l'autre meurt de chagrin.",
+				'team' : 'V',
+				'multiple' : false,
+				'phase' : 'cupidon'
 			}
 		];
 
@@ -50,7 +58,13 @@
 
 			characterById : function (id) {
 				return byId[id];
-			}
+			},
+
+			SORCIERE : 'sorciere',
+			VILLAGEOIS : 'villageois',
+			LOUP : 'loup',
+			VOYANTE : 'voyante',
+			CUPIDON : 'cupidon'
 
 		};
 

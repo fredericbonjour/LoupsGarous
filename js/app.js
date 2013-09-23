@@ -284,7 +284,18 @@
 		function beginNight () {
 			resetVotes().then(function () {
 				$rootScope.game.time = 'N';
+				//console.log("Sorcière ? ", getPlayerByRole(lgCharacters.SORCIERE));
 			});
+		}
+
+		function getPlayerByRole (role) {
+			var result = null;
+			angular.forEach($rootScope.players, function (p) {
+				if (p.role === role) {
+					result = p;
+				}
+			});
+			return result;
 		}
 
 		function resetVotes ()
@@ -419,6 +430,18 @@
 
 		function killVotedPlayer ()
 		{
+			var dead = getVotedPlayer();
+			if (! dead) {
+				return postGameMessage("Personne n'est mort ! Quel paisible village...");
+			}
+			else {
+				return killPlayer(dead);
+			}
+		}
+
+
+		function getVotedPlayer ()
+		{
 			var votesByPlayer = {};
 			angular.forEach($rootScope.players, function (p) {
 				if (p.voteFor) {
@@ -448,12 +471,7 @@
 				dead = deads[Math.floor(Math.random()*deads.length)];
 			}
 
-			if (! dead) {
-				return postGameMessage("Personne n'est mort ! Quel paisible village...");
-			}
-			else {
-				return killPlayer(dead);
-			}
+			return dead;
 		}
 
 
@@ -477,7 +495,15 @@
 			// Only the game master's client will end the night.
 			if (isGameMaster()) {
 				console.log("Maître du jeu -> terminer la nuit...");
-				killVotedPlayer().then(beginDay, stopGame);
+
+				var dead = getVotedPlayer();
+
+				if (dead) {
+					return killPlayer(dead).then(beginDay, stopGame);;
+				}
+				else {
+					return postGameMessage("Personne n'est mort ! Quel paisible village...");
+				}
 			}
 		});
 
