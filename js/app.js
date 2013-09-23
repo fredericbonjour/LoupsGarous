@@ -506,6 +506,9 @@
 			else if (alives.L > 0 && alives.V === 0) {
 				return 'L';
 			}
+			else if (alives.L === 0 && alives.V === 0) {
+				return 'A';
+			}
 			return null;
 		}
 
@@ -531,12 +534,16 @@
 					).then(function () {
 						console.log("message posted! resolving...");
 						var end = checkEndOfGame(), endMessage;
+						console.log("checkEndOfGame=", end);
 						if (! end) {
 							defer.resolve();
 						}
 						else {
 							if (end === 'V') {
 								endMessage = "Les villageois ont gagné ! La raison du plus fort et toujours la meilleure !";
+							}
+							else if (end === 'A') {
+								endMessage = "Tout le monde est mort ! Waouh, ça craint tout ça...";
 							}
 							else {
 								endMessage = "Les loups ont gagné ! Quelle tristesse...";
