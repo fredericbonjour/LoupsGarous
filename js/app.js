@@ -6,6 +6,18 @@
 
 	app.constant('NIGHT_DURATION', 15);
 
+	app.constant('lgPhase', {
+		VOYANTE : 'voyante',
+		LOUPS : 'loups',
+		SORCIERE : 'sorciere',
+		VILLAGEOIS : 'villageois'
+	});
+
+	app.constant('lgTeam', {
+		LOUPS : 'L',
+		VILLAGEOIS : 'V'
+	});
+
 
 	/**
 	 * Initialization code:
@@ -136,7 +148,7 @@
 	/**
 	 * Main service.
 	 */
-	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location, $q, $timeout, lgCharacters) {
+	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location, $q, $timeout, $log, lgCharacters, lgPhase, lgTeam) {
 
 		//
 		// Login and logout
@@ -193,7 +205,7 @@
 
 		function stopGame () {
 			$rootScope.game.status = 'STOPPED';
-			$rootScope.game.time = 'D';
+			$rootScope.game.phase = '';
 		}
 
 
@@ -273,7 +285,7 @@
 
 		function beginDay () {
 			resetVotes().then(function () {
-				$rootScope.game.time = 'D';
+				$rootScope.game.phase = lgPhase.VILLAGEOIS;
 			});
 		}
 
@@ -281,10 +293,29 @@
 			killVotedPlayer().then(angular.noop, stopGame);
 		}
 
+		function startPhase (phase) {
+			$log.log("startPhase: ", phase);
+			$rootScope.game.phase = phase;
+		}
+
+		function nextPhase () {
+			if ($rootScope.game.phase === lgPhase.VOYANTE) {
+				startPhase(lgPhase.LOUPS);
+			}
+		}
+
 		function beginNight () {
 			resetVotes().then(function () {
-				$rootScope.game.time = 'N';
-				//console.log("Sorcière ? ", getPlayerByRole(lgCharacters.SORCIERE));
+				//$rootScope.game.time = 'N';
+				$log.log("Y a-t-il une voyante ?");
+				if (isRoleAlive(lgCharacters.VOYANTE)) {
+					$log.log("Oui !");
+					startPhase(lgCharacters.VOYANTE);
+				}
+				else {
+					$log.log("Pas de voyante : on passe au loups !");
+					startPhase(lgPhase.LOUPS);
+				}
 			});
 		}
 
@@ -296,6 +327,11 @@
 				}
 			});
 			return result;
+		}
+
+		function isRoleAlive (role) {
+			var player = getPlayerByRole(role);
+			return player && isAlive(player);
 		}
 
 		function resetVotes ()
@@ -314,7 +350,7 @@
 
 
 		function isNight () {
-			return $rootScope.game && $rootScope.game.time === 'N';
+			return $rootScope.game && ($rootScope.game.phase === lgPhase.VOYANTE || $rootScope.game.phase === lgPhase.LOUPS);
 		}
 		$rootScope.isNight = isNight;
 
@@ -365,20 +401,20 @@
 			if ($rootScope.game.status === 'STOPPED') {
 				msgObj = {
 					sender: $rootScope.user.id,
-					body: msg,
-					date: new Date().getTime(),
-					time: 'D',
-					team: ''
+					body  : msg,
+					date  : new Date().getTime(),
+					phase : lgPhase.VILLAGEOIS,
+					team  : ''
 				};
 			}
 			else {
 				msgObj = {
 					sender: $rootScope.user.id,
-					body: msg,
-					date: new Date().getTime(),
-					time: $rootScope.game.time,
-					team: $rootScope.me ? $rootScope.me.char.team : '',
-					dead: iAmDead()
+					body  : msg,
+					date  : new Date().getTime(),
+					phase : $rootScope.game.phase,
+					team  : $rootScope.me ? $rootScope.me.char.team : '',
+					dead  : iAmDead()
 				};
 			}
 
@@ -392,9 +428,9 @@
 			var defer = $q.defer();
 			$rootScope.messages.add({
 				sender: 'system',
-				body: msg,
-				date: new Date().getTime(),
-				time: $rootScope.game.time
+				body  : msg,
+				date  : new Date().getTime(),
+				phase : $rootScope.game.phase
 			}, function () {
 				resolveDefer(defer);
 			});
@@ -513,6 +549,11 @@
 		}
 		$rootScope.myTeamIs = myTeamIs;
 
+		function iAm(role) {
+			return $rootScope.me && $rootScope.me.char && $rootScope.me.char.id === role;
+		}
+		$rootScope.iAm = iAm;
+
 
 		function checkEndOfGame ()
 		{
@@ -527,10 +568,10 @@
 			});
 
 			if (alives.L === 0 && alives.V > 0) {
-				return 'V';
+				return lgTeam.VILLAGEOIS;
 			}
 			else if (alives.L > 0 && alives.V === 0) {
-				return 'L';
+				return lgTeam.LOUPS;
 			}
 			else if (alives.L === 0 && alives.V === 0) {
 				return 'A';
@@ -556,7 +597,7 @@
 						"Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong>" +
 						" (qui était <strong>" + char.name + "</strong>)" +
 						" est mort.<br/>" +
-						(char.team === 'L' ? "Et hop : un d'moins !" : "Paix à son âme !")
+						(char.team === lgTeam.LOUPS ? "Et hop : un d'moins !" : "Paix à son âme !")
 					).then(function () {
 						console.log("message posted! resolving...");
 						var end = checkEndOfGame(), endMessage;
@@ -618,7 +659,9 @@
 			iAmAlive : iAmAlive,
 			myTeamIs : myTeamIs,
 
-			postMessage : postMessage
+			postMessage : postMessage,
+
+			nextPhase : nextPhase
 		};
 
 	});

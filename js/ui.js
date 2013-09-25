@@ -243,7 +243,7 @@
 	});
 
 
-	app.directive('lgPlayersPoll', function (LG, $rootScope)
+	app.directive('lgPlayersPoll', function (LG, lgPhase, $rootScope)
 	{
 		return {
 			'restrict' : 'A',
@@ -275,10 +275,11 @@
 			{
 				scope.players = {};
 
-				$rootScope.$watch('game.time', function () {
-					if (LG.isNight()) {
+				$rootScope.$watch('game.phase', function (phase) {
+					if (phase === lgPhase.LOUPS) {
 						angular.forEach($rootScope.players, function (player, id) {
-							if (player.role === 'villageois') {
+							console.log("player ", player, " is ", player.role);
+							if (player.team === 'V') {
 								scope.players[id] = player;
 							}
 						});
@@ -286,7 +287,7 @@
 					else {
 						scope.players = $rootScope.players;
 					}
-				});
+				}, true);
 
 				scope.toggleVote = function (player)
 				{
@@ -338,6 +339,40 @@
 			}
 		}
 	});
+
+
+
+
+	app.directive('lgViewPlayerIdentity', function (LG)
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div class="panel panel-default">' +
+					'<div class="panel-heading"><h4><i class="icon-eye-open"></i> Joueurs</h4></div>' +
+					'<ul class="list-group">' +
+						'<li style="cursor:pointer;" class="list-group-item" ng-click="toggleIdentity(p)" ng-repeat="(name,p) in players">' +
+							'<strong>{{ users[p.user].name }}</strong>' +
+						'</li>' +
+					'</ul>' +
+				'</div>',
+			scope : true,
+
+			'link' : function (scope, iElement, iAttrs, ngModel)
+			{
+				scope.identityRevealed = false;
+				scope.toggleIdentity = function (player)
+				{
+					if (! scope.identityRevealed) {
+						scope.identityRevealed = true;
+						window.alert(player.role);
+						LG.nextPhase();
+					}
+				};
+			}
+		}
+	});
+
 
 
 	app.directive('lgGameMasterUi', function (LG) {
@@ -405,13 +440,13 @@
 					}
 				}
 
-				$rootScope.$watch('game.time', function (value, old) {
-					if (value === 'N' && old === 'D') {
+				$rootScope.$watch('game.phase', function (value, old) {
+					if (value === 'loups' && old !== value) {
 						scope.time = NIGHT_DURATION + 1;
 						stop();
 						tick();
 					}
-					else if (value === 'D') {
+					else if (value === 'villageois') {
 						stop();
 					}
 				}, true);

@@ -3,7 +3,7 @@
 	var app = angular.module("LoupsGarous");
 
 
-	app.controller('GameController', function (LG, lgCharacters, $scope, $rootScope, $timeout)
+	app.controller('GameController', function (LG, lgCharacters, lgPhase, $scope, $rootScope, $timeout, $log)
 	{
 		var chatView = $('#messages'),
 			multitouch = (typeof window.orientation !== 'undefined');
@@ -15,6 +15,8 @@
 
 		$scope.joinGame = LG.joinGame;
 		$scope.quitGame = LG.quitGame;
+
+		// Game status changes
 
 		$rootScope.$watch('game.status', function (status, previous) {
 			console.log("GameController: game.status=", status, ", prev=", previous);
@@ -39,13 +41,26 @@
 		}, true);
 
 
-		$rootScope.$watch('game.time', function (value, old) {
+		$rootScope.$watch('game.phase', function (value, old) {
 			// night -> day
+
+			// FIXME
+			$rootScope.me.player.voteFor = null;
+			/*
 			if (value === 'N' && old === 'D') {
-				console.log("Game time: ", value, " (old=", old, ")");
+				$log.log("Jour ou nuit ? ", value, " (old=", old, ")");
 				$rootScope.me.player.voteFor = null;
 			}
+			*/
 		}, true);
+
+
+		$rootScope.$watch('game.phase', function (phase, old) {
+			$log.info("La phase du jeu a changé : ", phase);
+		}, true);
+
+
+		// Chat
 
 		var prevMessageCount = 0;
 		$scope.availableMessages = function () {
@@ -55,7 +70,7 @@
 					if (LG.iAmDead()) {
 						messages.push(msg);
 					}
-					else if (! msg.dead && (!msg.time || msg.time === 'D' || ($rootScope.me && msg.team === $rootScope.me.team))) {
+					else if (! msg.dead && (!msg.phase || msg.phase === lgPhase.VILLAGEOIS || ($rootScope.me && msg.team === $rootScope.me.team))) {
 						messages.push(msg);
 					}
 				});

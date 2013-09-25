@@ -44,10 +44,15 @@
 
 				<div lg-game-master-ui ng-if="isGameMaster()"></div>
 
-				<div lg-players-poll="" ng-if="iAmAlive() && (myTeamIs('L') || isDay())"></div>
+				<div lg-players-poll="" ng-if="iAmAlive() && myTeamIs('L') && game.phase == 'loups'"></div>
 				<div class="alert alert-info" ng-if="iAmDead()">
 					<h4>Vous êtes mort.</h4>
 					C'est terrible ce qui vous est arrivé... Mais un mort ne vote pas, désolé !
+				</div>
+
+				<div lg-view-player-identity="" ng-if="game.phase == 'voyante' && iAm('voyante')"></div>
+				<div ng-if="game.phase == 'voyante' && ! iAm('voyante')" class="alert alert-info">
+					C'est au tour de la voyante... S'il y en a une !
 				</div>
 			</div>
 		</div>
