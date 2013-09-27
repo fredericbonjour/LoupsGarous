@@ -70,6 +70,42 @@
 
 	<div class="container ng-view"></div>
 
+
+	<!-- Directives templates -->
+
+	<script type="text/ng-template" id="lgChatUi.html">
+		<div class="panel panel-default">
+			<div class="panel-heading"><h4><i class="icon-comments-alt"></i> Discussion</h4></div>
+
+			<ul class="list-group messages">
+				<li class="list-group-item" ng-repeat="msg in availableMessages() | orderBy:'date'" lg-message="msg"></li>
+			</ul>
+
+			<div class="panel-footer">
+				<form ng-show="myTeamIs('L') || isDay() || iAmDead()" name="form" novalidate="" ng-submit="addMessage()">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="input-group">
+								<input type="text" ng-model="msg" class="form-control" placeholder="Message..."/>
+							<span class="input-group-btn">
+								<button class="btn btn-primary" ng-disabled="!msg" type="submit">Envoyer</button>
+							</span>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div ng-show="myTeamIs('V') && isNight() && iAmAlive()" class="alert alert-info">
+					<h4><i class="icon-moon"></i> C'est la nuit, vous dormez à poings fermés !</h4>
+					Espérons que les loups ne jetterons pas leur dévolu sur vous...
+				</div>
+				<div ng-show="iAmDead()" class="alert alert-info">
+					<h4>Vous êtes mort !</h4>
+					Seuls les morts peuvent lire vos messages.
+				</div>
+			</div>
+		</div>
+	</script>
+
 	<script src="ref.js"></script>
 	<script src="js/app.js"></script>
 	<script src="js/characters.js"></script>

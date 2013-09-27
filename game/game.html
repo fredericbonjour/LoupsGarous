@@ -40,9 +40,8 @@
 
 		<div ng-switch-when="RUNNING">
 			<div ng-if="userInfo.joinRef">
-				<div lg-character="me.char"></div>
 
-				<div lg-game-master-ui ng-if="isGameMaster()"></div>
+				<div lg-character="me.char"></div>
 
 				<!-- UI votes -->
 				<div lg-players-poll="" ng-if="iAmAlive() && myTeamIs('L') || game.phase == 'villageois'"></div>
@@ -67,62 +66,18 @@
 		</div>
 	</div>
 
-	<div class="col-md-9" ng-switch="game.status">
+	<div class="col-md-7" ng-switch="game.status">
 
-
-		<!-- Join game -->
-		<div ng-switch-when="WAITING">
-			<ol class="breadcrumb">
-				<li><a href="#/">Accueil</a></li>
-				<li>Nouvelle partie</li>
-				<li class="active">Attente des joueurs</li>
-			</ol>
-		</div>
-
-		<!-- Join game -->
-		<div ng-switch-when="PREPARING">
-			<ol class="breadcrumb">
-				<li><a href="#/">Accueil</a></li>
-				<li>Nouvelle partie</li>
-				<li class="active">Préparation</li>
-			</ol>
-		</div>
-
-
-		<div ng-switch-when="RUNNING">
-			<ol class="breadcrumb">
-				<li><a href="#/">Accueil</a></li>
-				<li>Partie en cours</li>
-				<li ng-if="isNight()" class="active"><i class="icon-moon"></i> Nuit</li>
-				<li ng-if="isDay()" class="active"><i class="icon-sun"></i> Jour</li>
-			</ol>
-		</div>
+		<div lg-game-master-ui ng-if="isGameMaster()"></div>
 
 		<!-- Chat -->
-		<div>
-			<ul class="media-list messages" id="messages">
-				<li class="media" ng-repeat="msg in availableMessages() | orderBy:'date'" lg-message="msg"></li>
-			</ul>
-			<form ng-show="myTeamIs('L') || isDay() || iAmDead()" name="form" novalidate="" ng-submit="addMessage()">
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="input-group">
-							<input type="text" ng-model="msg" class="form-control" placeholder="Message..."/>
-						<span class="input-group-btn">
-							<button class="btn btn-primary" ng-disabled="!msg" type="submit">Envoyer</button>
-						</span>
-						</div>
-					</div>
-				</div>
-			</form>
-			<div ng-show="myTeamIs('V') && isNight() && iAmAlive()" class="alert alert-info">
-				<h4><i class="icon-moon"></i> C'est la nuit, vous dormez à poings fermés !</h4>
-				Espérons que les loups ne jetterons pas leur dévolu sur vous...
-			</div>
-			<div ng-show="iAmDead()" class="alert alert-info">
-				<h4>Vous êtes mort !</h4>
-				Seuls les morts peuvent lire vos messages.
-			</div>
+
+		<div lg-chat-ui=""></div>
+	</div>
+
+	<div class="col-md-2">
+		<div ng-if="userInfo.joinRef">
+
 		</div>
 	</div>
 

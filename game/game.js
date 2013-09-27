@@ -5,14 +5,6 @@
 
 	app.controller('GameController', function (LG, lgCharacters, lgPhase, $scope, $rootScope, $timeout, $log)
 	{
-		var chatView = $('#messages'),
-			multitouch = (typeof window.orientation !== 'undefined');
-
-		$scope.addMessage = function () {
-			LG.postMessage($scope.msg);
-			$scope.msg = "";
-		};
-
 		$scope.joinGame = LG.joinGame;
 		$scope.quitGame = LG.quitGame;
 
@@ -59,43 +51,6 @@
 			$log.info("La phase du jeu a changé : ", phase);
 		}, true);
 
-
-		// Chat
-
-		var prevMessageCount = 0;
-		$scope.availableMessages = function () {
-			var messages = [];
-			if ($scope.game && $scope.game.messages) {
-				angular.forEach($scope.game.messages, function (msg) {
-					if (LG.iAmDead()) {
-						messages.push(msg);
-					}
-					else if (! msg.dead && (!msg.phase || msg.phase === lgPhase.VILLAGEOIS || ($rootScope.me && msg.team === $rootScope.me.team))) {
-						messages.push(msg);
-					}
-				});
-			}
-			if (! multitouch && messages.length !== prevMessageCount) {
-				var el = document.getElementById("messages");
-				$timeout(function () {
-					el.scrollTop = el.scrollHeight;
-				});
-				prevMessageCount = messages.length;
-			}
-			return messages;
-		};
-
-
-		function resizeHandler () {
-			var height = $(document).innerHeight() - chatView.offset().top - 80;
-			chatView.css('max-height', height+'px');
-			var el = chatView.get(0);
-			el.scrollTop = el.scrollHeight;
-		}
-		if (! multitouch) {
-			$(window).resize(resizeHandler);
-			resizeHandler();
-		}
 	});
 
 

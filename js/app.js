@@ -299,8 +299,19 @@
 		}
 
 		function nextPhase () {
-			if ($rootScope.game.phase === lgPhase.VOYANTE) {
-				startPhase(lgPhase.LOUPS);
+			switch ($rootScope.game.phase)
+			{
+				case lgPhase.LOUPS :
+					startPhase(lgPhase.LOUPS);
+					break;
+				case lgPhase.VOYANTE :
+					startPhase(lgPhase.LOUPS);
+					break;
+				case lgPhase.SORCIERE :
+					startPhase(lgPhase.VILLAGEOIS);
+					break;
+				default :
+					console.warn("Que faire après la phase " + $rootScope.game.phase + " ?");
 			}
 		}
 
