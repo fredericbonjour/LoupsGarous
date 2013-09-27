@@ -1,5 +1,10 @@
+/*
+Exemple : http://sitediscount.ru/white_flatty_alt_theme/index.html
+*/
+
 body {
-	background: url(../images/bandeau.jpg) bottom center no-repeat fixed;
+	/*background: url(../images/bandeau.jpg) bottom center no-repeat fixed #ecf0f1;*/
+	background: url(../images/bg.png);
 }
 
 .navbar-nav .navbar-brand,
