@@ -326,6 +326,7 @@
 					result = p;
 				}
 			});
+			console.log("player for role ", role, ": ", result);
 			return result;
 		}
 
@@ -534,11 +535,16 @@
 
 				var dead = getVotedPlayer();
 
-				if (dead) {
-					return killPlayer(dead).then(beginDay, stopGame);;
+				if (isRoleAlive(lgCharacters.SORCIERE)) {
+					startPhase(lgPhase.SORCIERE);
 				}
 				else {
-					return postGameMessage("Personne n'est mort ! Quel paisible village...");
+					if (dead) {
+						return killPlayer(dead).then(beginDay, stopGame);;
+					}
+					else {
+						return postGameMessage("Personne n'est mort ! Quel paisible village...");
+					}
 				}
 			}
 		});
@@ -661,7 +667,9 @@
 
 			postMessage : postMessage,
 
-			nextPhase : nextPhase
+			nextPhase : nextPhase,
+
+			lastKilledPlayerId : getVotedPlayer
 		};
 
 	});

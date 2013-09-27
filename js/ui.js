@@ -343,13 +343,13 @@
 
 
 
-	app.directive('lgViewPlayerIdentity', function (LG)
+	app.directive('lgSoothsayerUi', function (LG)
 	{
 		return {
 			'restrict' : 'A',
 			'template' :
 				'<div class="panel panel-default">' +
-					'<div class="panel-heading"><h4><i class="icon-eye-open"></i> Joueurs</h4></div>' +
+					'<div class="panel-heading"><h4><i class="icon-eye-open"></i> Voyante</h4></div>' +
 					'<ul class="list-group">' +
 						'<li style="cursor:pointer;" class="list-group-item" ng-click="toggleIdentity(p)" ng-repeat="(name,p) in players">' +
 							'<strong>{{ users[p.user].name }}</strong>' +
@@ -358,7 +358,7 @@
 				'</div>',
 			scope : true,
 
-			'link' : function (scope, iElement, iAttrs, ngModel)
+			'link' : function (scope)
 			{
 				scope.identityRevealed = false;
 				scope.toggleIdentity = function (player)
@@ -375,6 +375,50 @@
 
 
 
+	app.directive('lgWitchUi', function (LG)
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div class="panel panel-default">' +
+					'<div class="panel-heading"><h4><i class="icon-beaker"></i> Sorcière</h4></div>' +
+					'<div class="list-group">' +
+						'<a class="list-group-item" href="javascript:;" ng-click="resurrect = ! resurrect" ng-class="{\'active\': resurrect}">' +
+							'<strong>{{ users[killedPlayer.user].name }} s\'est fait dévorer cette nuit !</strong>' +
+							'<div ng-if="! resurrect">Clique pour le ressuciter</div>' +
+							'<div ng-if="resurrect">Clique pour le laisser mourir</div>' +
+						'</a>' +
+						'<a href="javascript:;" class="list-group-item">Tu peux aussi utiliser ta potion de mort pour tuer un autre joueur :</a>' +
+						'<a href="javascript:;" class="list-group-item" ng-click="kill(p)" ng-repeat="p in players" ng-hide="p.$id == killedPlayer.$id" ng-class="{\'active\': p.$id == newKilledPlayerId}">' +
+							'<strong>Tuer {{ users[p.user].name }}</strong>' +
+						'</a>' +
+					'</div>' +
+				'</div>',
+			scope : true,
+
+			'link' : function (scope)
+			{
+				scope.killedPlayer = scope.players.getByName(LG.lastKilledPlayerId());
+
+				scope.resurrect = false;
+
+				scope.newKilledPlayerId = null;
+
+				scope.kill = function (player)
+				{
+					if (scope.newKilledPlayerId == player.$id) {
+						scope.newKilledPlayerId = null;
+					}
+					else {
+						scope.newKilledPlayerId = player.$id;
+					}
+				};
+			}
+		}
+	});
+
+
+
 	app.directive('lgGameMasterUi', function (LG) {
 		return {
 			'restrict' : 'A',
@@ -383,6 +427,7 @@
 					'<div class="panel-heading"><h4><i class="icon-cog"></i> Maître du jeu</h4></div>' +
 					'<div class="panel-body">' +
 						'<button type="button" class="btn btn-danger btn-block" ng-click="stopGame()">Arrêter la partie</button>' +
+						'<button type="button" ng-if="isNight() && isRoleAlive(\'sorciere\')" class="btn btn-block btn-warning" ng-click="startPhase(\'sorciere\')"><i class="icon-beaker"></i> Sorcière</button>' +
 						'<button type="button" ng-if="isNight()" class="btn btn-block btn-warning" ng-click="beginDay()"><i class="icon-sun"></i> Le jour se lève !</button>' +
 						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="endDay()"><i class="icon-sun"></i> Terminer la journée</button>' +
 						'<button type="button" ng-if="isDay()" class="btn btn-block btn-warning" ng-click="beginNight()"><i class="icon-moon"></i> La nuit tombe !</button>' +
@@ -412,6 +457,8 @@
 			}
 		}
 	});
+
+
 
 	app.directive('lgTimer', function ($rootScope, $timeout, NIGHT_DURATION) {
 		return {
