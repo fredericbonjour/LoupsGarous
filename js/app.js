@@ -480,7 +480,7 @@
 		{
 			var dead = getVotedPlayer();
 			if (! dead) {
-				return postGameMessage("Personne n'est mort ! Quel paisible village...");
+				return postGameMessage("(killVotedPlayer) Personne n'est mort ! Quel paisible village...");
 			}
 			else {
 				return killPlayer(dead);
@@ -554,7 +554,7 @@
 						return killPlayer(dead).then(beginDay, stopGame);;
 					}
 					else {
-						return postGameMessage("Personne n'est mort ! Quel paisible village...");
+						return postGameMessage("(LG:NightIsOver) Personne n'est mort ! Quel paisible village...");
 					}
 				}
 			}

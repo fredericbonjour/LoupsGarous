@@ -239,9 +239,7 @@
 							'{{ character.name }}' +
 						'</h4>' +
 					'</div>' +
-					'<div class="panel-body" ng-if="showDesc">' +
-						'<p>{{ character.desc }}</p>' +
-					'</div>' +
+					'<div class="panel-body" ng-if="showDesc">{{ character.desc }}</div>' +
 				'</div>',
 			'replace'  : true,
 			'scope' : {
@@ -482,7 +480,7 @@
 			'restrict' : 'A',
 			'template' :
 				'<div class="panel panel-danger">' +
-					'<div class="panel-heading"><h4><i class="icon-cog"></i> Maître du jeu</h4></div>' +
+					'<div class="panel-heading"><h4><i class="icon-magic"></i> Maître du jeu</h4></div>' +
 					'<div class="panel-body">' +
 						'<div class="btn-toolbar">' +
 							'<button type="button" ng-if="isNight() && isRoleAlive(\'sorciere\')" class="btn btn-block btn-warning" ng-click="startPhase(\'sorciere\')"><i class="icon-beaker"></i> Sorcière</button>' +
