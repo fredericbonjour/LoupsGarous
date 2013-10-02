@@ -3,13 +3,19 @@ Exemple : http://sitediscount.ru/white_flatty_alt_theme/index.html
 */
 
 body {
-	/*background: url(../images/bandeau.jpg) bottom center no-repeat fixed #ecf0f1;*/
 	background: white url(../images/bg.png);
 }
 
 body.night {
-	//background-color: #202d44;
 	background: white url(../images/night_bg.jpg);
+}
+
+.panel tr.alive {
+	font-weight: bold;
+}
+
+.panel tr.dead {
+	font-style: italic;
 }
 
 .navbar-nav .navbar-brand,

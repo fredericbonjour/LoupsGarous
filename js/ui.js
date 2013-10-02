@@ -281,6 +281,7 @@
 	});
 
 
+
 	app.directive('lgPlayersPoll', function (LG, lgPhase, $rootScope)
 	{
 		return {
@@ -377,7 +378,6 @@
 			}
 		}
 	});
-
 
 
 
@@ -560,6 +560,50 @@
 			}
 		}
 	});
+
+
+
+	app.directive('lgCharactersInGame', function (LG, lgCharacters, $rootScope)
+	{
+		return {
+			'restrict' : 'A',
+			'template' :
+				'<div class="panel panel-default">' +
+					'<div class="panel-heading"><h4>En jeu</h4></div>' +
+					'<table class="table">' +
+						'<tr ng-repeat="(name,count) in countPerRole" ng-class="{true:\'alive\', false:\'dead\'}[count.alive > 0]">' +
+							'<td align="right">{{ name }}</td><td ng-switch="count.multiple">' +
+								'<span ng-switch-when="true">{{ count.alive }}<span class="text-muted"> ({{ count.total }})</span></span>' +
+								'<span ng-switch-when="false">{{ count.alive }}</span>' +
+							'</td>' +
+						'</tr>' +
+					'</table>' +
+				'</div>',
+			scope : true,
+
+			'link' : function (scope, iElement, iAttrs)
+			{
+				scope.countPerRole = {};
+				angular.forEach($rootScope.players, function (p) {
+					var char = lgCharacters.characterById(p.role);
+					if (! scope.countPerRole.hasOwnProperty(char.name)) {
+						scope.countPerRole[char.name] = {
+							alive : LG.isAlive(p) ? 1 : 0,
+							total : 1,
+							multiple : char.multiple
+						};
+					}
+					else {
+						if (LG.isAlive(p)) {
+							scope.countPerRole[char.name].alive++;
+						}
+						scope.countPerRole[char.name].total++;
+					}
+				});
+			}
+		}
+	});
+
 
 
 })(moment);
