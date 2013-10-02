@@ -4,7 +4,12 @@ Exemple : http://sitediscount.ru/white_flatty_alt_theme/index.html
 
 body {
 	/*background: url(../images/bandeau.jpg) bottom center no-repeat fixed #ecf0f1;*/
-	background: url(../images/bg.png);
+	background: white url(../images/bg.png);
+}
+
+body.night {
+	//background-color: #202d44;
+	background: white url(../images/night_bg.jpg);
 }
 
 .navbar-nav .navbar-brand,
@@ -13,7 +18,7 @@ body {
 }
 
 .panel {
-	border: 2px solid #ccc;
+	border: 2px solid rgba(0,0,0,0.3);
 	box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.15);
 }
 

@@ -147,7 +147,7 @@
 
 				function resizeHandler ()
 				{
-					var height = $(window).height() - chatView.offset().top - 80;
+					var height = $(window).height() - chatView.offset().top - 100;
 					chatView.css('max-height', height+'px');
 					var el = chatView.get(0);
 					el.scrollTop = el.scrollHeight;
@@ -424,7 +424,7 @@
 						'<li class="list-group-item" ng-show="killedPlayer">' +
 							'<strong>{{ users[killedPlayer.user].name }} s\'est fait dévorer cette nuit !</strong>' +
 							'<div ng-switch="resurrect">' +
-								'<button type="button" class="btn btn-block btn-success" ng-class="{\'active\': resurrect}" ng-click="resurrect = ! resurrect">' +
+								'<button type="button" class="btn btn-block btn-success btn-sm" ng-class="{\'active\': resurrect}" ng-click="resurrect = ! resurrect">' +
 								'<i ng-if="resurrect" class="icon-beaker"></i> ' +
 								'Ressuciter {{ users[killedPlayer.user].name }}' +
 								'</button>' +
@@ -433,9 +433,8 @@
 						'<li class="list-group-item" ng-hide="killedPlayer">' +
 							'<span class="label label-primary">Incroyable !</span> <strong>Personne ne s\'est fait dévorer cette nuit !</strong>' +
 						'</li>' +
-						'<li  class="list-group-item">Tu peux utiliser ta potion de mort pour tuer un autre joueur :</li>' +
-						'<li class="list-group-item" ng-repeat="p in players" ng-hide="p.$id == killedPlayer.$id">' +
-							'<button type="button" class="btn btn-block btn-danger" ng-class="{\'active\': p.$id == newKilledPlayerId}" ng-click="kill(p)">' +
+						'<li class="list-group-item"><p>Tu peux utiliser ta potion de mort pour tuer un autre joueur :</p>' +
+							'<button type="button" ng-repeat="p in players" ng-hide="p.$id == killedPlayer.$id" class="btn btn-block btn-danger btn-sm" ng-class="{\'active\': p.$id == newKilledPlayerId}" ng-click="kill(p)">' +
 								'<i ng-if="p.$id == newKilledPlayerId" class="icon-beaker"></i> ' +
 								'Tuer <strong>{{ users[p.user].name }}</strong>' +
 							'</button>' +

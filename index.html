@@ -28,7 +28,7 @@
 	<script src="lib/angularfire/angularfire.js"></script>
 </head>
 
-<body>
+<body ng-class="{'night': isNight()}">
 
 	<nav class="navbar navbar-default" ng-class="{'navbar-inverse': isNight()}" role="navigation">
 		<div class="navbar-header">
@@ -94,13 +94,13 @@
 						</div>
 					</div>
 				</form>
-				<div ng-show="myTeamIs('V') && isNight() && iAmAlive()" class="alert alert-info">
-					<h4><i class="icon-moon"></i> C'est la nuit, vous dormez à poings fermés !</h4>
-					Espérons que les loups ne jetterons pas leur dévolu sur vous...
+				<div ng-show="myTeamIs('V') && isNight() && iAmAlive()">
+					<strong><i class="icon-moon"></i> C'est la nuit, vous dormez à poings fermés !</strong>
+					<br/>Espérons que les loups ne jetterons pas leur dévolu sur vous...
 				</div>
-				<div ng-show="iAmDead()" class="alert alert-info">
-					<h4>Vous êtes mort !</h4>
-					Seuls les morts peuvent lire vos messages.
+				<div ng-show="iAmDead()">
+					<strong>Vous êtes mort !</strong>
+					<br/>Seuls les morts peuvent lire vos messages.
 				</div>
 			</div>
 		</div>

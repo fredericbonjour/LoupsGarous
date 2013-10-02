@@ -362,7 +362,11 @@
 
 
 		function isNight () {
-			return $rootScope.game && ($rootScope.game.phase === lgPhase.VOYANTE || $rootScope.game.phase === lgPhase.LOUPS);
+			return $rootScope.game && (
+				$rootScope.game.phase === lgPhase.VOYANTE
+					|| $rootScope.game.phase === lgPhase.LOUPS
+					|| $rootScope.game.phase === lgPhase.SORCIERE
+				);
 		}
 		$rootScope.isNight = isNight;
 
