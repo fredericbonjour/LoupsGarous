@@ -613,11 +613,11 @@
 					});
 				}
 
-				$rootScope.$watch('game.status', function (value, old) {
-					if (value === 'RUNNING') {
+				$rootScope.$watchCollection('players', function () {
+					if ($rootScope.game.status === 'RUNNING') {
 						update();
 					}
-				}, true);
+				});
 			}
 		}
 	});
