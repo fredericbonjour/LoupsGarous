@@ -590,25 +590,34 @@
 
 			'link' : function (scope, iElement, iAttrs)
 			{
-				scope.countPerRole = {};
-				angular.forEach($rootScope.players, function (p)
+				function update ()
 				{
-					var char = lgCharacters.characterById(p.role);
-					if (! char) return;
-					if (! scope.countPerRole.hasOwnProperty(char.name)) {
-						scope.countPerRole[char.name] = {
-							alive : LG.isAlive(p) ? 1 : 0,
-							total : 1,
-							multiple : char.multiple
-						};
-					}
-					else {
-						if (LG.isAlive(p)) {
-							scope.countPerRole[char.name].alive++;
+					scope.countPerRole = {};
+					angular.forEach($rootScope.players, function (p)
+					{
+						var char = lgCharacters.characterById(p.role);
+						if (! char) return;
+						if (! scope.countPerRole.hasOwnProperty(char.name)) {
+							scope.countPerRole[char.name] = {
+								alive : LG.isAlive(p) ? 1 : 0,
+								total : 1,
+								multiple : char.multiple
+							};
 						}
-						scope.countPerRole[char.name].total++;
+						else {
+							if (LG.isAlive(p)) {
+								scope.countPerRole[char.name].alive++;
+							}
+							scope.countPerRole[char.name].total++;
+						}
+					});
+				}
+
+				$rootScope.$watch('game.status', function (value, old) {
+					if (value === 'RUNNING') {
+						update();
 					}
-				});
+				}, true);
 			}
 		}
 	});
