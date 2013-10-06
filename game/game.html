@@ -3,38 +3,39 @@
 	<div class="col-md-3" ng-switch="game.status">
 
 		<div ng-switch-when="WAITING">
-			<div class="alert alert-info" ng-if="! userInfo.joinRef">
-				<h4>Une partie vient d'être créée !</h4>
-				Vous pouvez la rejoindre !
-			</div>
-			<div class="alert alert-success" ng-if="userInfo.joinRef">
-				<h4>Vous avez rejoint la partie !</h4>
-				Le maître du jeu attend les autres joueurs...
-			</div>
-			<p>
-				<button type="button" class="btn btn-primary" ng-hide="userInfo.joinRef" ng-click="joinGame()"><i class="icon-play"></i> Rejoindre</button>
-				<button type="button" class="btn btn-danger" ng-hide="! userInfo.joinRef" ng-click="quitGame()"><i class="icon-stop"></i> Quitter</button>
-			</p>
-
 			<div class="panel panel-info">
-				<div class="panel-heading" ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur présent', 'one': 'Un joueur présent', 'other': '{} joueurs présents'}"></div>
-				<div class="panel-body">
-					<div ng-repeat="player in game.players" lg-user="player.user"></div>
-				</div>
-			</div>
+				<div class="panel-heading"><h4>Nouvelle partie créée !</h4></div>
 
+				<ul class="list-group">
+					<li class="list-group-item" ng-if="! userInfo.joinRef">
+						<button type="button" class="btn btn-block btn-primary" ng-click="joinGame()"><i class="icon-play"></i> Rejoindre la partie</button>
+					</li>
+
+					<li class="list-group-item" ng-if="userInfo.joinRef">
+						<button type="button" class="btn btn-block btn-danger" ng-click="quitGame()"><i class="icon-stop"></i> Quitter la partie</button>
+					</li>
+
+					<li class="list-group-item" ng-pluralize count="countPlayers()" when="{'0': 'Aucun joueur n\'est présent', 'one': 'Un joueur est présent :', 'other': '{} joueurs sont présents :'}"></li>
+
+					<li class="list-group-item" ng-repeat="player in game.players">
+						<div lg-user="player.user"></div>
+					</li>
+				</ul>
+			</div>
 		</div>
 
 		<div ng-switch-when="PREPARING">
-			<div class="alert alert-info">
-				<h4>Préparation de la partie...</h4>
-				Le maître du jeu prépare la partie... Un peu de patience <i class="icon-smiley-smiley"></i>
+			<div class="panel panel-info">
+				<div class="panel-heading"><h4>Préparation...</h4></div>
+				<div class="panel-body">
+					Le maître du jeu prépare la partie... Un peu de patience <i class="icon-smiley-smiley"></i>
+				</div>
 			</div>
 		</div>
 
 		<div ng-switch-when="STOPPED">
-			<div class="alert alert-warning">
-				<h4>La partie est terminée !</h4>
+			<div class="panel panel-warning">
+				<div class="panel-heading"><h4>Partie terminée !</h4></div>
 			</div>
 		</div>
 
@@ -52,15 +53,9 @@
 
 				<!-- UI voyante -->
 				<div lg-soothsayer-ui="" ng-if="game.phase == 'voyante' && iAm('voyante')"></div>
-				<div ng-if="game.phase == 'voyante' && ! iAm('voyante')" class="alert alert-info">
-					C'est au tour de la voyante... S'il y en a une !
-				</div>
 
 				<!-- UI sorcière -->
 				<div lg-witch-ui="" ng-if="game.phase == 'sorciere' && iAm('sorciere')"></div>
-				<div ng-if="game.phase == 'sorciere' && ! iAm('sorciere')" class="alert alert-info">
-					C'est au tour de la sorcière... S'il y en a une !
-				</div>
 
 			</div>
 		</div>
@@ -77,7 +72,6 @@
 
 	<div class="col-md-2">
 		<div ng-if="userInfo.joinRef">
-
 			<div lg-characters-in-game=""></div>
 		</div>
 	</div>

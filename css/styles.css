@@ -48,12 +48,11 @@ body.night {
 }
 
 [lg-chat-ui] .messages .dead img.card {
-	border: 4px solid #444444;
+	border: 3px solid #444444;
 	border-radius: 4px 4px 4px 4px;
 	margin-right: 10px;
-	width: 48px;
-	height: 48px;
-	margin-top: -4px;
+	width: 40px;
+	height: 40px;
 }
 
 [lg-chat-ui] .messages .dead {
@@ -61,14 +60,14 @@ body.night {
 }
 
 [lg-chat-ui] .messages .dead .cross {
-	background: url('../images/dead-cross.png');
-	width: 34px;
-	height: 40px;
-	position: absolute;
-	left: 7px;
-	top: 0;
-	opacity: 0.8;
+	background: url("../images/dead-cross.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
 	display: block;
+	height: 36px;
+	left: 5px;
+	opacity: 0.7;
+	position: absolute;
+	top: 2px;
+	width: 30px;
 }
 
 [lg-chat-ui] .messages small.pull-right {
@@ -116,6 +115,9 @@ body.night {
 	border-top: none;
 }
 
+.end-of-game {
+	text-align: center;
+}
 
 
 /* Characters */
@@ -128,86 +130,54 @@ body.night {
 	text-transform: capitalize;
 }
 
-.character {
-	display: block;
-	position: relative;
-	/*text-align: right;*/
-	margin-bottom: 20px;
-}
-
-.character.select {
-	text-align: left;
-}
-
-.character.select .count {
-	position: absolute;
-	left: 106px;
-	top: 0px;
-	font-family: Verdana;
-	background: #0088CC;
-	color: white;
-	font-size: 40px;
-	line-height: 40px;
-	width: 60px;
-	height: 60px;
-	display: block;
-	padding: 10px;
-	text-align: center;
-	border-radius: 6px;
-}
-
-.character.select.selected {
-	color: #0088CC;
-}
-
-.character.select.selected img {
-	border-color: #0088CC;
-}
-
-.character.select img {
-	float: left;
-	margin-right: 10px;
-}
-
-.character img + h4 {
-	border-bottom-left-radius: 4px;
-	border-bottom-right-radius: 4px;
-	color: #FFFFFF;
-	font-family: 'Lobster Two',cursive;
-	font-size: 140%;
-	height: 50px;
-	line-height: 40px;
-	margin-bottom: 40px;
-	padding: 8px;
-	position: absolute;
-	right: 0;
-	text-align: center;
-	top: 108px;
-	width: 166px;
-	z-index: 10;
-	background: rgba(0, 0, 0, 0.4); /* Old browsers */
-	background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, #000000 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,#000000)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,#000000 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,#000000 100%); /* IE10+ */
-	background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,#000000 100%); /* W3C */
-
-}
-
-.character figcaption {
-	font-size: 120%;
-	font-family: 'Lobster Two', cursive;
-	padding: 5px 0;
-}
-
-.character figcaption p {
-	margin: 0;
-}
-
 img.card {
 	border: 8px solid #444444;
 	border-radius: 4px 4px 4px 4px;
+}
+
+img.card.message {
+	border: 3px solid #444444;
+	border-radius: 3px;
+	width: 40px;
+	height: 40px;
+	margin-right: 6px;
+	vertical-align: top;
+	float: left;
+}
+
+[lg-characters-selection-ui] td.character {
+	cursor: pointer;
+	text-align: right;
+}
+
+[lg-characters-selection-ui] td.character img.card {
+	border: 3px solid #444444;
+	border-radius: 4px;
+	width: 80px;
+	height: 80px;
+	float: right;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+[lg-characters-selection-ui] td.character h4 {
+	margin-top: 0;
+}
+
+[lg-characters-selection-ui] td.character p {
+	font-size: 95%;
+	line-height: 1.1em;
+}
+
+[lg-characters-selection-ui] td .count {
+	text-align: center;
+	font-size: 30pt;
+	color: silver;
+	width: 60px;
+}
+
+[lg-characters-selection-ui] .active td .count {
+	color: #0088CC;
 }
 
 

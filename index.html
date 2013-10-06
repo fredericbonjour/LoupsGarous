@@ -30,24 +30,19 @@
 
 <body ng-class="{'night': isNight()}">
 
+	<audio id="sound_coq" src="sounds/coq.ogg" preload="auto"></audio>
+	<audio id="sound_loup" src="sounds/loup.ogg" preload="auto"></audio>
+
 	<nav class="navbar navbar-default" ng-class="{'navbar-inverse': isNight()}" role="navigation">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="#/game"><img src="images/logo.png"/> Loups-Garous</a>
 		</div>
 
+		<span lg-timer=""></span>
 
-		<ul class="nav navbar-nav" ng-if="isGameMaster()">
-			<li class="dropdown">
-				<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-					Maître du jeu
-					<b class="caret"></b></a>
-				<ul class="dropdown-menu">
-					<li><a href="#/admin">Gérer la partie</a></li>
-				</ul>
-			</li>
+		<ul class="nav navbar-nav">
+			<li><a href="javascript:;" ng-click="userInfo.sounds = ! userInfo.sounds"><i class="icon-large" ng-class="{true:'icon-volume-up',false:'icon-volume-off'}[userInfo.sounds]"></i></a></li>
 		</ul>
-
-		<span ng-hide="isDay()" lg-timer=""></span>
 
 		<ul class="nav navbar-nav">
 			<li ng-if="isDead(me.player)"><a href="javascript:;">Vous êtes mort</a></li>
@@ -71,7 +66,9 @@
 	<div class="container ng-view"></div>
 
 
-	<!-- Directives templates -->
+
+	<!-- Chat -->
+
 
 	<script type="text/ng-template" id="lgChatUi.html">
 		<div class="panel panel-default">
@@ -104,6 +101,93 @@
 				</div>
 			</div>
 		</div>
+	</script>
+
+
+
+	<!-- Maître du jeu -->
+
+
+	<script type="text/ng-template" id="lgGameMasterUi.html">
+		<div class="panel panel-danger" ng-switch="game.status">
+			<div class="panel-heading"><h4><i class="icon-magic"></i> Maître du jeu</h4></div>
+
+			<div class="panel-body" ng-switch-when="RUNNING">
+				<div class="btn-toolbar">
+					<button type="button" ng-if="isDay() && ! waitingForNight" class="btn btn-primary" ng-click="endDay()">Clore les votes</button>
+					<button type="button" ng-if="isDay() && waitingForNight" class="btn btn-default" disabled="disabled">La nuit <span ng-pluralize="" count="waitingForNightTime" when="{'0':'tombe.', 'one':'va tomber dans une seconde...', 'other': 'va tomber dans {} secondes...'}"></span></button>
+					<button type="button" class="btn btn-danger pull-right" ng-click="stopGame()"><i class="icon-stop"></i> Arrêter la partie</button>
+				</div>
+			</div>
+
+			<div class="panel-body" ng-switch-when="STOPPED">
+				<div class="btn-toolbar">
+					<button type="button" class="btn btn-success" ng-click="createGame()">Démarrer une partie</button>
+				</div>
+			</div>
+
+			<div class="panel-body" ng-switch-when="WAITING">
+				<p><strong>En attente des joueurs...</strong></p>
+				<p>
+					Dès que tous les joueurs sont là, vous pouvez <strong>configurer la partie</strong>.
+				</p>
+				<div class="btn-toolbar">
+					<button type="button" class="btn btn-success" ng-click="prepareGame()">Configurer la partie...</button>
+					<button type="button" class="btn btn-danger" ng-click="stopGame()"><i class="icon-stop"></i> Annuler la partie</button>
+				</div>
+			</div>
+
+
+			<div class="panel-body" ng-switch-when="PREPARING">
+				<div>Choisissez les personnages de la partie puis cliquez sur <strong>Commencer la partie</strong> pour jouer.</div>
+				<button type="button" class="btn btn-danger" ng-click="stopGame()"><i class="icon-stop"></i> Annuler</button>
+			</div>
+
+			<form role="form" novalidate="" ng-submit="createGame()" name="form" class="form-horizontal">
+				<div lg-characters-selection-ui="" ng-model="gameData.selectedChars"></div>
+			</form>
+
+			<div class="panel-footer" ng-if="game.status == 'PREPARING'">
+				<div ng-if="gameData.selectedChars.count < countPlayers()">
+					<strong>Vous n'avez pas choisi assez de personnages !</strong>
+				</div>
+				<div ng-if="gameData.selectedChars.count > countPlayers()">
+					<strong>Vous avez choisi trop de personnages !</strong>
+				</div>
+				<div ng-if="gameData.selectedChars.count == countPlayers()">
+					<strong ng-if="! gameData.selectedChars.VCount">Vous devez choisir des villageois !</strong>
+					<strong ng-if="! gameData.selectedChars.LCount">Vous devez choisir des loups !</strong>
+
+					<div ng-if="gameData.selectedChars.VCount && gameData.selectedChars.LCount" class="clearfix">
+						<button type="button" class="btn btn-block btn-success" ng-click="beginGame()">Commencer la partie avec <strong>{{gameData.selectedChars.VCount}} villageois</strong> et <strong>{{gameData.selectedChars.LCount}} loups</strong> !</button>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="panel-footer" ng-if="game.status == 'RUNNING'">
+				Phase de jeu : <strong>{{ game.phase }}</strong>
+			</div>
+		</div>
+	</script>
+
+
+	<script type="text/ng-template" id="lgCharactersSelectionUi.html">
+
+		<table class="table" ng-switch-when="PREPARING">
+			<tr ng-repeat="char in characters" ng-class="{'active': char.count > 0}">
+				<td class="character" ng-click="select(char)">
+					<img class="card" ng-src="images/cartes/{{ char.id }}.png"/>
+					<h4 ng-bind="char.name"></h4>
+					<p ng-bind="char.desc"></p>
+				</td>
+				<td>
+					<div class="count" ng-bind="char.count || 0"></div>
+					<button type="button" class="btn btn-block btn-sm btn-danger" ng-if="char.count > 0" ng-click="remove(char)">Enlever</button>
+				</td>
+			</tr>
+		</table>
+
 	</script>
 
 	<script src="ref.js"></script>

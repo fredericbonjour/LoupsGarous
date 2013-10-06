@@ -13,6 +13,13 @@
 		VILLAGEOIS : 'villageois'
 	});
 
+	app.constant('lgPhaseMessages', {
+		'voyante' : "<img class=\"card message\" src=\"images/cartes/voyante.png\"/><strong>La voyante se réveille.</strong><br/>Elle va pouvoir connaître l'identité d'un joueur.",
+		'loups' : "<img class=\"card message\" src=\"images/cartes/loup.png\"/><strong>Les loups se réveillent et ils ont les crocs !</strong><br/>Ils partent en quête d'une victime à dévorer...",
+		'sorciere' : "<img class=\"card message\" src=\"images/cartes/sorciere.png\"/><strong>La sorcière se réveille.</strong><br/>Elle va pouvoir utiliser ses potions... ou pas !"
+	});
+
+
 	app.constant('lgTeam', {
 		LOUPS : 'L',
 		VILLAGEOIS : 'V'
@@ -26,7 +33,6 @@
 	 * The 'global everythingReady' deferred is resolved when everything is ready.
 	 */
 	app.run(function (angularFire, angularFireCollection, angularFireAuth, $rootScope, $q) {
-		console.log("run");
 		everythingReady = $q.defer();
 
 		//
@@ -39,6 +45,9 @@
 
 			$rootScope.$watch('userInfo', function (info, old) {
 				if (info && info !== old) {
+					if (angular.isUndefined($rootScope.userInfo.sounds)) {
+						$rootScope.userInfo.sounds = true;
+					}
 					console.log("$watch(userInfo): userInfo=", info);
 					angular.extend($rootScope.user, info);
 					if (! gameObjectsLoaded) {
@@ -59,6 +68,11 @@
 			'name' : 'user'
 		});
 
+
+		/**
+		 *
+		 * @returns {*|Promise|Promise|Promise|Promise}
+		 */
 		function loadGameObjects ()
 		{
 			console.log("loadGameObjects");
@@ -148,12 +162,19 @@
 	/**
 	 * Main service.
 	 */
-	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location, $q, $timeout, $log, lgCharacters, lgPhase, lgTeam) {
+	app.service('LG', function (angularFire, angularFireAuth, angularFireCollection, $rootScope, $location, $q, $timeout, $log, lgCharacters, lgPhase, lgPhaseMessages, lgTeam) {
 
 		//
 		// Login and logout
 		//
 
+
+		/**
+		 *
+		 * @param user
+		 * @param pass
+		 * @returns {*}
+		 */
 		function login (user, pass) {
 			return angularFireAuth.login('password', {
 				email : user,
@@ -161,22 +182,35 @@
 			});
 		}
 
+
+		/**
+		 *
+		 */
 		function logout () {
 			angularFireAuth.logout();
 			$location.path('/login');
 		}
 		$rootScope.logout = logout;
 
+
 		//
 		// Game process methods
 		//
 
+
+		/**
+		 *
+		 */
 		function createGame () {
 			resetGame().then(function () {
 				$rootScope.game.status = 'WAITING';
 			});
 		}
 
+
+		/**
+		 *
+		 */
 		function joinGame () {
 			var joinRef = $rootScope.players.add({
 				'user'   : $rootScope.user.id,
@@ -187,6 +221,10 @@
 			$rootScope.userInfo.joinRef = joinRef.name();
 		}
 
+
+		/**
+		 *
+		 */
 		function quitGame () {
 			console.log("quitGame for: ", $rootScope.userInfo.joinRef);
 			if ($rootScope.userInfo.joinRef) {
@@ -195,20 +233,37 @@
 			}
 		}
 
+
+		/**
+		 *
+		 */
 		function prepareGame () {
 			$rootScope.game.status = 'PREPARING';
 		}
 
+
+		/**
+		 *
+		 */
 		function cancelGame () {
 			createGame();
 		}
 
+
+		/**
+		 *
+		 */
 		function stopGame () {
 			$rootScope.game.status = 'STOPPED';
 			$rootScope.game.phase = '';
 		}
 
 
+		/**
+		 *
+		 * @param name
+		 * @returns {*|Promise|Promise|Promise|Promise}
+		 */
 		function clearCollection (name)
 		{
 			var mids = [];
@@ -227,6 +282,11 @@
 		}
 
 
+		/**
+		 *
+		 * @param selectedChars
+		 * @returns {*|Promise|Promise|Promise|Promise}
+		 */
 		function assignCharacters (selectedChars) {
 			// Create flat list of chars
 			var i, j,
@@ -253,11 +313,17 @@
 				console.log("Assigning ", player.role, " to ", player);
 				roles.splice(r, 1);
 				promises.push(deferred.promise);
+				//$rootScope.game[player.role] = {};
 			});
 
 			return $q.all(promises);
 		}
 
+
+		/**
+		 *
+		 * @param selectedChars
+		 */
 		function beginGame (selectedChars)
 		{
 			assignCharacters(selectedChars).then(function () {
@@ -269,6 +335,10 @@
 			});
 		}
 
+
+		/**
+		 *
+		 */
 		function initUserPlayer ()
 		{
 			console.log("initUserPlayer");
@@ -283,21 +353,62 @@
 		// Night and day
 		//
 
+
+		/**
+		 *
+		 */
 		function beginDay () {
+			postGameMessage("<i class=\"icon-sun\"></i> Le jour se lève !");
 			resetVotes().then(function () {
-				$rootScope.game.phase = lgPhase.VILLAGEOIS;
+				startPhase(lgPhase.VILLAGEOIS);
 			});
 		}
 
+
+		/**
+		 *
+		 */
 		function endDay () {
-			killVotedPlayer().then(angular.noop, stopGame);
+			$rootScope.waitingForNight = true;
+			killVotedPlayer().then(
+				function () {
+					function tick () {
+						$rootScope.waitingForNightTime--;
+						if ($rootScope.waitingForNightTime === 0) {
+							beginNight();
+						}
+						else {
+							$timeout(tick, 1000);
+						}
+					}
+					$rootScope.waitingForNightTime = 4;
+					$timeout(tick, 1000);
+				},
+				stopGame
+			);
 		}
 
+
+		/**
+		 *
+		 * @param phase
+		 */
 		function startPhase (phase) {
-			$log.log("startPhase: ", phase);
-			$rootScope.game.phase = phase;
+			$log.log("startPhase: ", phase, lgPhaseMessages, lgPhaseMessages[phase]);
+			if (lgPhaseMessages.hasOwnProperty(phase)) {
+				postGameMessage(lgPhaseMessages[phase]).then(function () {
+					$rootScope.game.phase = phase;
+				});
+			}
+			else {
+				$rootScope.game.phase = phase;
+			}
 		}
 
+
+		/**
+		 *
+		 */
 		function nextPhase () {
 			switch ($rootScope.game.phase)
 			{
@@ -308,16 +419,21 @@
 					startPhase(lgPhase.LOUPS);
 					break;
 				case lgPhase.SORCIERE :
-					startPhase(lgPhase.VILLAGEOIS);
+					beginDay();
 					break;
 				default :
 					console.warn("Que faire après la phase " + $rootScope.game.phase + " ?");
 			}
 		}
 
+
+		/**
+		 *
+		 */
 		function beginNight () {
+			postGameMessage("<i class=\"icon-moon\"></i> La nuit tombe et tous les villageois s'endorment.");
 			resetVotes().then(function () {
-				//$rootScope.game.time = 'N';
+				$rootScope.waitingForNight = false;
 				$log.log("Y a-t-il une voyante ?");
 				if (isRoleAlive(lgCharacters.VOYANTE)) {
 					$log.log("Oui !");
@@ -330,6 +446,12 @@
 			});
 		}
 
+
+		/**
+		 *
+		 * @param role
+		 * @returns {null}
+		 */
 		function getPlayerByRole (role) {
 			var result = null;
 			angular.forEach($rootScope.players, function (p) {
@@ -341,11 +463,22 @@
 			return result;
 		}
 
+
+		/**
+		 *
+		 * @param role
+		 * @returns {null|*}
+		 */
 		function isRoleAlive (role) {
 			var player = getPlayerByRole(role);
 			return player && isAlive(player);
 		}
 
+
+		/**
+		 *
+		 * @returns {*|Promise|Promise|Promise|Promise}
+		 */
 		function resetVotes ()
 		{
 			var promises = [];
@@ -361,7 +494,12 @@
 		}
 
 
-		function isNight () {
+		/**
+		 *
+		 * @returns {*|boolean}
+		 */
+		function isNight ()
+		{
 			return $rootScope.game && (
 				$rootScope.game.phase === lgPhase.VOYANTE
 					|| $rootScope.game.phase === lgPhase.LOUPS
@@ -371,37 +509,69 @@
 		$rootScope.isNight = isNight;
 
 
-		function isDay () {
+		/**
+		 *
+		 * @returns {boolean}
+		 */
+		function isDay ()
+		{
 			return ! isNight();
 		}
 		$rootScope.isDay = isDay;
 
 
-		function isGameMaster () {
+		/**
+		 *
+		 * @returns {string|*|boolean}
+		 */
+		function isGameMaster ()
+		{
 			return $rootScope.user && $rootScope.game && $rootScope.game.master == $rootScope.user.id;
 		}
 		$rootScope.isGameMaster = isGameMaster;
 
 
-		function isDead (player) {
+		/**
+		 *
+		 * @param player
+		 * @returns {*|boolean}
+		 */
+		function isDead (player)
+		{
 			return player && player.status === 'DEAD';
 		}
 		$rootScope.isDead = isDead;
 
 
-		function isAlive (player) {
+		/**
+		 *
+		 * @param player
+		 * @returns {*|boolean}
+		 */
+		function isAlive (player)
+		{
 			return player && player.status === 'ALIVE';
 		}
 		$rootScope.isAlive = isAlive;
 
 
-		function iAmDead () {
+		/**
+		 *
+		 * @returns {*|boolean}
+		 */
+		function iAmDead ()
+		{
 			return $rootScope.me && isDead($rootScope.me.player);
 		}
 		$rootScope.iAmDead = iAmDead;
 
 
-		function iAmAlive () {
+		/**
+		 *
+		 * @returns {*|boolean}
+		 */
+		function iAmAlive ()
+		{
 			return $rootScope.me && isAlive($rootScope.me.player);
 		}
 		$rootScope.iAmAlive = iAmAlive;
@@ -411,7 +581,14 @@
 		// Chat
 		//
 
-		function postMessage (msg) {
+
+		/**
+		 *
+		 * @param msg
+		 * @returns {*|Function|Function|promise|Function}
+		 */
+		function postMessage (msg)
+		{
 			var defer = $q.defer(), msgObj;
 
 			if ($rootScope.game.status === 'STOPPED') {
@@ -440,6 +617,12 @@
 			return defer.promise;
 		}
 
+
+		/**
+		 *
+		 * @param msg
+		 * @returns {*|Function|Function|promise|Function}
+		 */
 		function postGameMessage (msg) {
 			var defer = $q.defer();
 			$rootScope.messages.add({
@@ -453,16 +636,31 @@
 			return defer.promise;
 		}
 
+
+		/**
+		 *
+		 * @returns {*}
+		 */
 		function clearMessages ()
 		{
 			return clearCollection('messages');
 		}
 
+
+		/**
+		 *
+		 * @returns {*}
+		 */
 		function clearPlayers ()
 		{
 			return clearCollection('players');
 		}
 
+
+		/**
+		 *
+		 * @returns {*|Promise|Promise|Promise|Promise}
+		 */
 		function resetGame ()
 		{
 			quitGame();
@@ -473,18 +671,27 @@
 		}
 
 
-		function resolveDefer (defer) {
+		/**
+		 *
+		 * @param defer
+		 */
+		function resolveDefer (defer)
+		{
 			$timeout(function () {
 				defer.resolve();
 			});
 		}
 
 
+		/**
+		 *
+		 * @returns {*}
+		 */
 		function killVotedPlayer ()
 		{
 			var dead = getVotedPlayer();
 			if (! dead) {
-				return postGameMessage("(killVotedPlayer) Personne n'est mort ! Quel paisible village...");
+				return postGameMessage("<i class=\"icon-thumbs-up-alt\"></i> Personne n'est mort. Quel paisible village !");
 			}
 			else {
 				return killPlayer(dead);
@@ -492,6 +699,10 @@
 		}
 
 
+		/**
+		 *
+		 * @returns {null}
+		 */
 		function getVotedPlayer ()
 		{
 			var votesByPlayer = {};
@@ -527,7 +738,12 @@
 		}
 
 
-		function countPlayers () {
+		/**
+		 *
+		 * @returns {number}
+		 */
+		function countPlayers ()
+		{
 			if ($rootScope.game && $rootScope.game.players) {
 				var count = 0;
 				angular.forEach($rootScope.game.players, function () {
@@ -540,10 +756,11 @@
 		$rootScope.countPlayers = countPlayers;
 
 
-
+		/**
+		 *
+		 */
 		$rootScope.$on('LG:NightIsOver', function ()
 		{
-			console.log("Nuit terminée !");
 			// Only the game master's client will end the night.
 			if (isGameMaster()) {
 				console.log("Maître du jeu -> terminer la nuit...");
@@ -555,27 +772,45 @@
 				}
 				else {
 					if (dead) {
-						return killPlayer(dead).then(beginDay, stopGame);;
+						killPlayer(dead).then(beginDay, stopGame);
 					}
 					else {
-						return postGameMessage("(LG:NightIsOver) Personne n'est mort ! Quel paisible village...");
+						beginDay();
+						postGameMessage("<i class=\"icon-thumbs-up-alt\"></i> Personne n'est mort cette nuit. Quel paisible village !");
 					}
 				}
 			}
 		});
 
 
-		function myTeamIs(team) {
+		/**
+		 *
+		 * @param team
+		 * @returns {*|boolean}
+		 */
+		function myTeamIs(team)
+		{
 			return $rootScope.me && $rootScope.me.char && $rootScope.me.char.team === team;
 		}
 		$rootScope.myTeamIs = myTeamIs;
 
-		function iAm(role) {
+
+		/**
+		 *
+		 * @param role
+		 * @returns {*|boolean}
+		 */
+		function iAm(role)
+		{
 			return $rootScope.me && $rootScope.me.char && $rootScope.me.char.id === role;
 		}
 		$rootScope.iAm = iAm;
 
 
+		/**
+		 *
+		 * @returns {*}
+		 */
 		function checkEndOfGame ()
 		{
 			var alives = {
@@ -601,6 +836,11 @@
 		}
 
 
+		/**
+		 *
+		 * @param pId
+		 * @returns {*|Function|Function|promise|Function}
+		 */
 		function killPlayer (pId)
 		{
 			console.log("killing player ", pId);
@@ -628,13 +868,13 @@
 						}
 						else {
 							if (end === 'V') {
-								endMessage = "Les villageois ont gagné ! La raison du plus fort et toujours la meilleure !";
+								endMessage = "<div class=\"end-of-game clearfix\"><img class=\"card\" src=\"images/cartes/villageois.png\"><h4>Les villageois ont gagné !</h4>La raison du plus fort est toujours la meilleure !</div>";
 							}
 							else if (end === 'A') {
 								endMessage = "Tout le monde est mort ! Waouh, ça craint tout ça...";
 							}
 							else {
-								endMessage = "Les loups ont gagné ! Quelle tristesse...";
+								endMessage = "<div class=\"end-of-game clearfix\"><img class=\"card\" src=\"images/cartes/loup.png\"><h4>Les loups ont gagné !</h4>Quelle tristesse...</div>";
 							}
 							postGameMessage(endMessage).then(function () {
 								defer.reject();
@@ -645,6 +885,40 @@
 			});
 			return defer.promise;
 		}
+
+
+		/**
+		 *
+		 * @param pId
+		 * @returns {*|Function|Function|promise|Function}
+		 */
+		function endWitchPhase (witchPlayer, resurrect, killedPlayerId)
+		{
+			var promises = [];
+			var dead = getVotedPlayer();
+
+			if (! resurrect && dead) {
+				promises.push(killPlayer(dead));
+			}
+
+			if (killedPlayerId) {
+				promises.push(killPlayer(killedPlayerId));
+			}
+
+			$q.all(promises).then(nextPhase);
+		}
+
+
+		/**
+		 *
+		 * @param sound
+		 */
+		function playSound (sound) {
+			if ($rootScope.user && $rootScope.user.sounds) {
+				document.getElementById('sound_' + sound).play();
+			}
+		}
+
 
 		//
 		// Public API
@@ -684,7 +958,11 @@
 
 			nextPhase : nextPhase,
 
-			lastKilledPlayerId : getVotedPlayer
+			lastKilledPlayerId : getVotedPlayer,
+
+			playSound : playSound,
+
+			endWitchPhase : endWitchPhase
 		};
 
 	});

@@ -34,7 +34,7 @@
 				'team' : lgTeam.VILLAGEOIS,
 				'multiple' : false,
 				'phase' : 'voyante'
-			},
+			}/*,
 			{
 				'id' : 'cupidon',
 				'name' : 'Cupidon',
@@ -42,7 +42,7 @@
 				'team' : lgTeam.VILLAGEOIS,
 				'multiple' : false,
 				'phase' : 'cupidon'
-			}
+			}*/
 		];
 
 		var byId = {};

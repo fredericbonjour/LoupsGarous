@@ -33,17 +33,19 @@
 		}, true);
 
 
-		$rootScope.$watch('game.phase', function (value, old) {
-			// night -> day
+		$rootScope.$watch('game.phase', function (value, old)
+		{
+			if (value === lgPhase.VILLAGEOIS && value !== old) {
+				LG.playSound('coq');
+			}
+			else if (value === lgPhase.LOUPS && value !== old) {
+				LG.playSound('loup');
+			}
 
 			// FIXME
-			$rootScope.me.player.voteFor = null;
-			/*
-			if (value === 'N' && old === 'D') {
-				$log.log("Jour ou nuit ? ", value, " (old=", old, ")");
+			if ($rootScope.me) {
 				$rootScope.me.player.voteFor = null;
 			}
-			*/
 		}, true);
 
 

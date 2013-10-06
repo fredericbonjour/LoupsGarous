@@ -56,11 +56,11 @@
 			'restrict' : 'A',
 			'template' :
 				'<a class="pull-left" href="javascript:;" ng-if="! systemMessage && ! sameSender">' +
-					'<img style="width:32px;height:32px;" ng-src="images/avatars/{{ sender.avatar }}">' +
+					'<img style="width:40px;height:40px;" ng-src="images/avatars/{{ sender.avatar }}">' +
 				'</a>' +
 				'<div ng-if="!sameSender">' +
-					'<h4 ng-if="! systemMessage">{{ sender.name }}</h4>' +
 					'<small class="pull-right text-muted"><time lg-time-ago="message.date"></time></small>' +
+					'<strong ng-if="! systemMessage">{{ sender.name }}</strong>' +
 					'<div ng-bind-html="trustedBody"></div>' +
 				'</div>' +
 				'<div ng-if="sameSender">' +
@@ -85,16 +85,6 @@
 					}
 				}
 				scope.trustedBody = $sce.trustAsHtml(lgSmileys.parse(scope.message.body));
-				/* FIXME
-				scope.sameSender = previousSender == scope.message.sender;
-				if (scope.sameSender) {
-					iElement.addClass('same-sender');
-				}
-				if ($rootScope.user.id == scope.message.sender) {
-					iElement.addClass('me');
-				}
-				previousSender = scope.message.sender;
-				*/
 			}
 		};
 	});
@@ -124,7 +114,7 @@
 							if (LG.iAmDead()) {
 								messages.push(msg);
 							}
-							else if (! msg.dead && (!msg.phase || msg.phase === lgPhase.VILLAGEOIS || ($rootScope.me && msg.team === $rootScope.me.team))) {
+							else if (! msg.dead && (!msg.phase || msg.sender === 'system' || msg.phase === lgPhase.VILLAGEOIS || ($rootScope.me && msg.team === $rootScope.me.player.team))) {
 								messages.push(msg);
 							}
 						});
@@ -165,12 +155,11 @@
 
 
 
-	app.directive('lgCharactersList', function (lgCharacters)
+	app.directive('lgCharactersSelectionUi', function (lgCharacters)
 	{
 		return {
 			'restrict' : 'A',
-			'template' :
-				'<div ng-repeat="char in characters" lg-character-select="char"></div>',
+			'templateUrl' : 'lgCharactersSelectionUi.html',
 			'require' : 'ngModel',
 
 			'link' : function (scope, iElement, iAttrs, ngModel)
@@ -181,50 +170,47 @@
 				};
 				scope.characters = lgCharacters.characters;
 
-				scope.$watch('characters', function (chars, old) {
+				scope.select = function (char)
+				{
+					if (char.multiple) {
+						if (! char.count) {
+							char.count = 1;
+						}
+						else {
+							char.count++;
+						}
+					}
+					else {
+						char.count = 1;
+					}
+				};
+
+				scope.remove = function (char)
+				{
+					char.count--;
+				};
+
+				scope.$watch('characters', function (chars, old)
+				{
 					selected.count = 0;
 					selected.chars.length = 0;
+					// TODO Attention si d'autres équipes voient le jour !
+					selected.LCount = 0;
+					selected.VCount = 0;
 					angular.forEach(chars, function (char) {
 						if (char.count) {
 							selected.chars.push(char);
 							selected.count += char.count;
+							selected[char.team+'Count'] = (selected[char.team+'Count'] || 0) + 1;
 						}
 					});
+					console.log(selected);
 					ngModel.$setViewValue(selected);
 				}, true);
 			}
 		}
 	});
 
-
-	app.directive('lgCharacterSelect', function ()
-	{
-		return {
-			'restrict' : 'A',
-			'template' :
-				'<figure ng-click="toggleSelect()" class="character clearfix select" ng-class="{\'selected\': character.count > 0}">' +
-					'<img class="card" ng-src="images/cartes/{{ character.id }}.png"/>' +
-					'<figcaption>' +
-						'<span ng-show="character.count > 0" class="count">{{ character.count }}</span>' +
-						'<h4>{{ character.name }}</h4>' +
-						'<p>{{ character.desc }}</p>' +
-						'<div class="btn-group">' +
-							'<button class="btn btn-default" type="button" ng-disabled="character.count > 0 && ! character.multiple" ng-click="character.count = character.count+1"><i class="icon-plus"></i></button>' +
-							'<button class="btn btn-default" type="button" ng-disabled="! character.count" ng-click="character.count = character.count-1"><i class="icon-minus"></i></button>' +
-						'</div>' +
-					'</figcaption>' +
-				'</figure>',
-			'replace'  : true,
-			'scope' : {
-				character : '=lgCharacterSelect'
-			},
-
-			'link' : function (scope, iElement, iAttrs, ctrl)
-			{
-				scope.character.count = 0;
-			}
-		}
-	});
 
 
 	app.directive('lgCharacter', function ()
@@ -389,6 +375,7 @@
 				'<div class="panel panel-info">' +
 					'<div class="panel-heading"><h4><i class="icon-eye-open"></i> Voyante</h4></div>' +
 					'<ul class="list-group">' +
+						'<li class="list-group-item">Cliquez sur le nom d\'un joueur pour réléver son identité :</li>' +
 						'<li style="cursor:pointer;" class="list-group-item" ng-click="toggleIdentity(p)" ng-repeat="(name,p) in players">' +
 							'<strong>{{ users[p.user].name }}</strong>' +
 						'</li>' +
@@ -413,7 +400,7 @@
 
 
 
-	app.directive('lgWitchUi', function (LG)
+	app.directive('lgWitchUi', function (LG, $rootScope, $timeout)
 	{
 		return {
 			'restrict' : 'A',
@@ -421,27 +408,35 @@
 				'<div class="panel panel-info">' +
 					'<div class="panel-heading"><h4><i class="icon-beaker"></i> Sorcière</h4></div>' +
 					'<ul class="list-group">' +
-						'<li class="list-group-item" ng-show="killedPlayer">' +
-							'<strong>{{ users[killedPlayer.user].name }} s\'est fait dévorer cette nuit !</strong>' +
-							'<div ng-switch="resurrect">' +
-								'<button type="button" class="btn btn-block btn-success btn-sm" ng-class="{\'active\': resurrect}" ng-click="resurrect = ! resurrect">' +
-								'<i ng-if="resurrect" class="icon-beaker"></i> ' +
-								'Ressuciter {{ users[killedPlayer.user].name }}' +
-								'</button>' +
+						'<li class="list-group-item" ng-if="killedPlayer">' +
+							'<div ng-if="me.player.lifePotionUsed">Tu as déjà utilisé ta potion de vie.</div>' +
+							'<div ng-if="! me.player.lifePotionUsed">' +
+								'<strong>{{ users[killedPlayer.user].name }} s\'est fait dévorer cette nuit !</strong>' +
+								'<div ng-switch="resurrect">' +
+									'<button type="button" class="btn btn-block btn-default btn-sm" ng-class="{\'btn-success active\': resurrect}" ng-click="resurrect = ! resurrect">' +
+									'<i ng-if="resurrect" class="icon-beaker"></i> ' +
+									'Ressuciter {{ users[killedPlayer.user].name }}' +
+									'</button>' +
+								'</div>' +
 							'</div>' +
 						'</li>' +
+
 						'<li class="list-group-item" ng-hide="killedPlayer">' +
 							'<span class="label label-primary">Incroyable !</span> <strong>Personne ne s\'est fait dévorer cette nuit !</strong>' +
 						'</li>' +
-						'<li class="list-group-item"><p>Tu peux utiliser ta potion de mort pour tuer un autre joueur :</p>' +
-							'<button type="button" ng-repeat="p in players" ng-hide="p.$id == killedPlayer.$id" class="btn btn-block btn-danger btn-sm" ng-class="{\'active\': p.$id == newKilledPlayerId}" ng-click="kill(p)">' +
+
+						'<li class="list-group-item" ng-if="! me.player.deathPotionUsed"><p>Tu peux utiliser ta potion de mort pour tuer un autre joueur :</p>' +
+							'<button type="button" ng-repeat="p in players" ng-hide="p.$id == killedPlayer.$id" class="btn btn-default btn-block btn-sm" ng-class="{\'btn-danger active\': p.$id == newKilledPlayerId}" ng-click="kill(p)">' +
 								'<i ng-if="p.$id == newKilledPlayerId" class="icon-beaker"></i> ' +
 								'Tuer <strong>{{ users[p.user].name }}</strong>' +
 							'</button>' +
 						'</li>' +
+						'<li class="list-group-item" ng-if="me.player.deathPotionUsed"><strong>Tu as déjà utilisé ta potion de mort.</strong></li>' +
+
 					'</ul>' +
-					'<div class="panel-footer">' +
-						'<p>Lorsque tu as utilisé tes potions comme tu le souhaites, clique sur <strong>Terminer</strong>.</p>' +
+					'<div class="panel-footer" ng-switch="(! killedPlayer || me.player.lifePotionUsed) && me.player.deathPotionUsed">' +
+						'<p ng-switch-when="true">Tu ne peux utiliser aucune potion. Clique sur <strong>Terminer</strong>.</p>' +
+						'<p ng-switch-when="false">Lorsque tu as utilisé tes potions comme tu le souhaites, clique sur <strong>Terminer</strong>.</p>' +
 						'<button type="button" class="btn btn-default btn-block btn-lg" ng-click="finish()">Terminer</button>' +
 					'</div>' +
 				'</div>',
@@ -465,8 +460,14 @@
 					}
 				};
 
-				scope.finish = function () {
-					LG.nextPhase();
+
+				scope.finish = function ()
+				{
+					$rootScope.me.player.lifePotionUsed = scope.resurrect;
+					$rootScope.me.player.deathPotionUsed = scope.newKilledPlayerId;
+					$timeout(function () {
+						LG.endWitchPhase($rootScope.me.player, scope.resurrect, scope.newKilledPlayerId);
+					})
 				};
 			}
 		}
@@ -474,25 +475,10 @@
 
 
 
-	app.directive('lgGameMasterUi', function (LG) {
+	app.directive('lgGameMasterUi', function (LG, $rootScope) {
 		return {
 			'restrict' : 'A',
-			'template' :
-				'<div class="panel panel-danger">' +
-					'<div class="panel-heading"><h4><i class="icon-magic"></i> Maître du jeu</h4></div>' +
-					'<div class="panel-body">' +
-						'<div class="btn-toolbar">' +
-							'<button type="button" ng-if="isNight() && isRoleAlive(\'sorciere\')" class="btn btn-block btn-warning" ng-click="startPhase(\'sorciere\')"><i class="icon-beaker"></i> Sorcière</button>' +
-							'<button type="button" ng-if="isNight()" class="btn btn-default" ng-click="beginDay()"><i class="icon-sun"></i> Le jour se lève !</button>' +
-							'<button type="button" ng-if="isDay()" class="btn btn-default" ng-click="endDay()"><i class="icon-sun"></i> Terminer la journée</button>' +
-							'<button type="button" ng-if="isDay()" class="btn btn-default" ng-click="beginNight()"><i class="icon-moon"></i> La nuit tombe !</button>' +
-							'<button type="button" class="btn btn-danger pull-right" ng-click="stopGame()"><i class="icon-stop"></i> Arrêter la partie</button>' +
-						'</div>' +
-					'</div>' +
-					'<div class="panel-footer">' +
-					'Phase de jeu : <strong>{{ game.phase }}</strong>' +
-					'</div>' +
-				'</div>',
+			'templateUrl' : 'lgGameMasterUi.html',
 			'scope' : true,
 
 			'link' : function (scope)
@@ -514,6 +500,24 @@
 				scope.beginNight = function () {
 					LG.beginNight();
 				};
+
+
+				scope.gameData = {};
+
+				// Actions
+				scope.createGame = function () {
+					$rootScope.game.status = 'WAITING';
+				};
+
+				scope.joinGame = LG.joinGame;
+				scope.prepareGame = LG.prepareGame;
+				scope.cancelGame = LG.cancelGame;
+				scope.stopGame = LG.stopGame;
+
+				scope.beginGame = function () {
+					LG.beginGame(scope.gameData.selectedChars);
+				};
+
 			}
 		}
 	});
@@ -524,12 +528,13 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<span ng-class="{\'danger\':time <= 30}">{{ time | remainingTime }}<i class="icon-moon"></i></span>',
+				'<span ng-class="{\'danger\':time <= 30}">{{ time | remainingTime }}</span>',
 			'replace'  : true,
 
-			'link' : function (scope)
+			'link' : function (scope, iElement)
 			{
 				var timer;
+				iElement.hide();
 
 				function tick () {
 					scope.time--;
@@ -551,10 +556,12 @@
 					if (value === 'loups' && old !== value) {
 						scope.time = NIGHT_DURATION + 1;
 						stop();
+						iElement.show();
 						tick();
 					}
 					else if (value === 'villageois') {
 						stop();
+						iElement.hide();
 					}
 				}, true);
 			}
@@ -568,7 +575,7 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<div class="panel panel-default">' +
+				'<div class="panel panel-default" ng-if="game.status == \'RUNNING\'">' +
 					'<div class="panel-heading"><h4>En jeu</h4></div>' +
 					'<table class="table">' +
 						'<tr ng-repeat="(name,count) in countPerRole" ng-class="{true:\'alive\', false:\'dead\'}[count.alive > 0]">' +
@@ -584,8 +591,10 @@
 			'link' : function (scope, iElement, iAttrs)
 			{
 				scope.countPerRole = {};
-				angular.forEach($rootScope.players, function (p) {
+				angular.forEach($rootScope.players, function (p)
+				{
 					var char = lgCharacters.characterById(p.role);
+					if (! char) return;
 					if (! scope.countPerRole.hasOwnProperty(char.name)) {
 						scope.countPerRole[char.name] = {
 							alive : LG.isAlive(p) ? 1 : 0,
