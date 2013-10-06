@@ -255,7 +255,7 @@
 		 */
 		function stopGame () {
 			$rootScope.game.status = 'STOPPED';
-			$rootScope.game.phase = '';
+			$rootScope.game.phase = lgPhase.VILLAGEOIS;
 		}
 
 
@@ -328,10 +328,10 @@
 		{
 			assignCharacters(selectedChars).then(function () {
 				console.log("All chars assigned and synced!");
-				postGameMessage("La partie vient de commencer ! Bon jeu et... bonne chance !");
-				beginNight();
-				$rootScope.game.status = 'RUNNING';
-				$location.path('/game');
+				postGameMessage("La partie vient de commencer ! Bon jeu et... bonne chance !").then(function () {
+					beginNight();
+					$rootScope.game.status = 'RUNNING';
+				});
 			});
 		}
 
@@ -694,7 +694,7 @@
 				return postGameMessage("<i class=\"icon-thumbs-up-alt\"></i> Personne n'est mort. Quel paisible village !");
 			}
 			else {
-				return killPlayer(dead);
+				return killPlayer(dead, true);
 			}
 		}
 
@@ -772,7 +772,7 @@
 				}
 				else {
 					if (dead) {
-						killPlayer(dead).then(beginDay, stopGame);
+						killPlayer(dead, true).then(beginDay, stopGame);
 					}
 					else {
 						beginDay();
@@ -813,26 +813,49 @@
 		 */
 		function checkEndOfGame ()
 		{
-			var alives = {
-				'L' : 0,
-				'V' : 0
-			};
+			console.log("checkEndOfGame");
+			var defer = $q.defer(),
+				end = null,
+				endMessage = null,
+				alives = { 'L' : 0, 'V' : 0 };
+
 			angular.forEach($rootScope.players, function (player) {
+				console.log("check ", player.role, ": ", player.status);
 				if (player.status === 'ALIVE') {
 					alives[player.team]++;
 				}
 			});
+			console.log("checkEndOfGame: alives=", alives);
 
 			if (alives.L === 0 && alives.V > 0) {
-				return lgTeam.VILLAGEOIS;
+				end = lgTeam.VILLAGEOIS;
 			}
 			else if (alives.L > 0 && alives.V === 0) {
-				return lgTeam.LOUPS;
+				end = lgTeam.LOUPS;
 			}
 			else if (alives.L === 0 && alives.V === 0) {
-				return 'A';
+				end = 'A';
 			}
-			return null;
+
+			if (! end) {
+				defer.resolve();
+			}
+			else {
+				if (end === 'V') {
+					endMessage = "<div class=\"end-of-game clearfix\"><img class=\"card\" src=\"images/cartes/villageois.png\"><h4>Les villageois ont gagné !</h4>La raison du plus fort est toujours la meilleure !</div>";
+				}
+				else if (end === 'A') {
+					endMessage = "Tout le monde est mort ! Waouh, ça craint tout ça...";
+				}
+				else {
+					endMessage = "<div class=\"end-of-game clearfix\"><img class=\"card\" src=\"images/cartes/loup.png\"><h4>Les loups ont gagné !</h4>Quelle tristesse...</div>";
+				}
+				postGameMessage(endMessage).then(function () {
+					defer.reject();
+				});
+			}
+
+			return defer.promise;
 		}
 
 
@@ -841,11 +864,10 @@
 		 * @param pId
 		 * @returns {*|Function|Function|promise|Function}
 		 */
-		function killPlayer (pId)
+		function killPlayer (pId, check)
 		{
-			console.log("killing player ", pId);
+			console.log("killing player ", pId, " check=", check);
 			var defer = $q.defer();
-			console.log("killing player ", pId);
 			var looser = $rootScope.players.getByName(pId);
 			looser.status = 'DEAD';
 			$rootScope.players.update(looser, function () {
@@ -854,33 +876,25 @@
 					var char = lgCharacters.characterById(looser.role);
 					postGameMessage(
 						"<span class=\"dead pull-left\"><img class=\"card\" src=\"images/cartes/" + looser.role + ".png\"/>" +
-						"<span class=\"cross\"></span></span>" +
-						"Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong>" +
-						" (qui était <strong>" + char.name + "</strong>)" +
-						" est mort.<br/>" +
-						(char.team === lgTeam.LOUPS ? "Et hop : un d'moins !" : "Paix à son âme !")
-					).then(function () {
-						console.log("message posted! resolving...");
-						var end = checkEndOfGame(), endMessage;
-						console.log("checkEndOfGame=", end);
-						if (! end) {
-							defer.resolve();
-						}
-						else {
-							if (end === 'V') {
-								endMessage = "<div class=\"end-of-game clearfix\"><img class=\"card\" src=\"images/cartes/villageois.png\"><h4>Les villageois ont gagné !</h4>La raison du plus fort est toujours la meilleure !</div>";
-							}
-							else if (end === 'A') {
-								endMessage = "Tout le monde est mort ! Waouh, ça craint tout ça...";
+							"<span class=\"cross\"></span></span>" +
+							"Le joueur <strong>" + $rootScope.users[looser.user].name + "</strong>" +
+							" (qui était <strong>" + char.name + "</strong>)" +
+							" est mort.<br/>" +
+							(char.team === lgTeam.LOUPS ? "Et hop : un d'moins !" : "Paix à son âme !")
+					).then(
+						function () {
+							if (check) {
+								checkEndOfGame().then(
+									function () { defer.resolve(); },
+									function () { defer.reject(); }
+								);
 							}
 							else {
-								endMessage = "<div class=\"end-of-game clearfix\"><img class=\"card\" src=\"images/cartes/loup.png\"><h4>Les loups ont gagné !</h4>Quelle tristesse...</div>";
+								console.log("no checkEndOfGame");
+								defer.resolve();
 							}
-							postGameMessage(endMessage).then(function () {
-								defer.reject();
-							});
 						}
-					});
+					);
 				});
 			});
 			return defer.promise;
@@ -892,20 +906,33 @@
 		 * @param pId
 		 * @returns {*|Function|Function|promise|Function}
 		 */
-		function endWitchPhase (witchPlayer, resurrect, killedPlayerId)
+		function endWitchPhase (resurrect, killedPlayerId)
 		{
+			console.log("endWitchPhase: resurrect=", resurrect, " killedPlayerId=", killedPlayerId);
 			var promises = [];
 			var dead = getVotedPlayer();
 
 			if (! resurrect && dead) {
-				promises.push(killPlayer(dead));
+				promises.push(killPlayer(dead, false));
 			}
 
 			if (killedPlayerId) {
-				promises.push(killPlayer(killedPlayerId));
+				promises.push(killPlayer(killedPlayerId, false));
 			}
 
-			$q.all(promises).then(nextPhase);
+			if (promises.length) {
+				$q.all(promises).then(
+					function () {
+						console.log("witch OK: checkEndOfGame...");
+						checkEndOfGame().then(nextPhase, stopGame);
+					},
+					stopGame
+				);
+			}
+			else {
+				console.log("La sorcière n'a rien fait: phase suivante !");
+				nextPhase();
+			}
 		}
 
 

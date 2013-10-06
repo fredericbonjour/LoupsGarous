@@ -408,9 +408,9 @@
 				'<div class="panel panel-info">' +
 					'<div class="panel-heading"><h4><i class="icon-beaker"></i> Sorcière</h4></div>' +
 					'<ul class="list-group">' +
-						'<li class="list-group-item" ng-if="killedPlayer">' +
-							'<div ng-if="me.player.lifePotionUsed">Tu as déjà utilisé ta potion de vie.</div>' +
-							'<div ng-if="! me.player.lifePotionUsed">' +
+						'<li class="list-group-item" ng-show="killedPlayer">' +
+							'<div ng-show="me.player.lifePotionUsed">Tu as déjà utilisé ta potion de vie.</div>' +
+							'<div ng-hide="me.player.lifePotionUsed">' +
 								'<strong>{{ users[killedPlayer.user].name }} s\'est fait dévorer cette nuit !</strong>' +
 								'<div ng-switch="resurrect">' +
 									'<button type="button" class="btn btn-block btn-default btn-sm" ng-class="{\'btn-success active\': resurrect}" ng-click="resurrect = ! resurrect">' +
@@ -425,13 +425,13 @@
 							'<span class="label label-primary">Incroyable !</span> <strong>Personne ne s\'est fait dévorer cette nuit !</strong>' +
 						'</li>' +
 
-						'<li class="list-group-item" ng-if="! me.player.deathPotionUsed"><p>Tu peux utiliser ta potion de mort pour tuer un autre joueur :</p>' +
+						'<li class="list-group-item" ng-hide="me.player.deathPotionUsed"><p>Tu peux utiliser ta potion de mort pour tuer un autre joueur :</p>' +
 							'<button type="button" ng-repeat="p in players" ng-hide="p.$id == killedPlayer.$id" class="btn btn-default btn-block btn-sm" ng-class="{\'btn-danger active\': p.$id == newKilledPlayerId}" ng-click="kill(p)">' +
 								'<i ng-if="p.$id == newKilledPlayerId" class="icon-beaker"></i> ' +
 								'Tuer <strong>{{ users[p.user].name }}</strong>' +
 							'</button>' +
 						'</li>' +
-						'<li class="list-group-item" ng-if="me.player.deathPotionUsed"><strong>Tu as déjà utilisé ta potion de mort.</strong></li>' +
+						'<li class="list-group-item" ng-show="me.player.deathPotionUsed"><strong>Tu as déjà utilisé ta potion de mort.</strong></li>' +
 
 					'</ul>' +
 					'<div class="panel-footer" ng-switch="(! killedPlayer || me.player.lifePotionUsed) && me.player.deathPotionUsed">' +
@@ -466,7 +466,7 @@
 					$rootScope.me.player.lifePotionUsed = scope.resurrect;
 					$rootScope.me.player.deathPotionUsed = scope.newKilledPlayerId;
 					$timeout(function () {
-						LG.endWitchPhase($rootScope.me.player, scope.resurrect, scope.newKilledPlayerId);
+						LG.endWitchPhase(scope.resurrect, scope.newKilledPlayerId);
 					})
 				};
 			}
