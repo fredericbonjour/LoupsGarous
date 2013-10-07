@@ -299,6 +299,8 @@
 					teams.push(chars[i].team);
 				}
 			}
+			console.log("roles=", roles);
+			console.log("teams=", teams);
 
 			var promises = [];
 
@@ -312,6 +314,7 @@
 				});
 				console.log("Assigning ", player.role, " to ", player);
 				roles.splice(r, 1);
+				teams.splice(r, 1);
 				promises.push(deferred.promise);
 				//$rootScope.game[player.role] = {};
 			});

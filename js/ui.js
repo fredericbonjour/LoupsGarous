@@ -201,7 +201,7 @@
 						if (char.count) {
 							selected.chars.push(char);
 							selected.count += char.count;
-							selected[char.team+'Count'] = (selected[char.team+'Count'] || 0) + 1;
+							selected[char.team+'Count'] = (selected[char.team+'Count'] || 0) + char.count;
 						}
 					});
 					console.log(selected);
@@ -245,13 +245,9 @@
 		return {
 			'restrict' : 'A',
 			'template' :
-				'<div class="media">' +
-					'<a class="pull-left" href="#">' +
-						'<img class="media-object" style="width:20px;height:20px;" ng-src="images/avatars/{{ users[userId].avatar }}">' +
-					'</a>' +
-					'<div class="media-body">' +
-						'<h4 class="media-heading">{{ users[userId].name }}</h4>' +
-					'</div>' +
+				'<div class="clearfix">' +
+					'<img class="pull-left" style="width:24px;height:24px;margin-right:6px;" ng-src="images/avatars/{{ users[userId].avatar }}">' +
+					'<h4 class="media-heading">{{ users[userId].name }}</h4>' +
 				'</div>',
 
 			'replace'  : true,
@@ -268,7 +264,7 @@
 
 
 
-	app.directive('lgPlayersPoll', function (LG, lgPhase, $rootScope)
+	app.directive('lgPlayersPoll', function (LG, lgPhase, lgTeam, $rootScope)
 	{
 		return {
 			'restrict' : 'A',
@@ -278,20 +274,21 @@
 					'<ul class="list-group">' +
 						'<li style="cursor:pointer;" class="list-group-item" ng-click="toggleVote(p)" ng-class="{\'me\':p.$id==me.player.$id, \'active\':p.$id == me.player.voteFor}" ng-repeat="(name,p) in players">' +
 							'<span class="pull-right votes-count" ng-class="{\'text-muted\':countVotes(p)==0}">{{ countVotes(p) }}</span>' +
-							//'<button ng-click="toggleVote(p)" ng-disabled="isDead(p)" class="btn btn-default btn-sm pull-left" ng-class="{\'active\': p.$id == me.player.voteFor && isAlive(p), \'btn-danger\': p.$id==me.player.$id}" type="button"><i ng-class="{true:\'icon-thumbs-up\', false:\'icon-ban-circle\'}[isAlive(p)]"></i></button>' +
-							' <strong>{{ users[p.user].name }}</strong>' +
+							'<strong ng-if="isAlive(p)">{{ users[p.user].name }}</strong>' +
+							'<em ng-if="isDead(p)">{{ users[p.user].name }}</em>' +
 							'<span ng-if="p.$id==me.player.$id" class="text-muted"> (vous)</span>' +
 							'<br/><small>' +
-							'<span ng-if="isDead(p)">est mort</span>' +
-							'<span ng-if="isAlive(p) && !p.voteFor">n\'a pas encore voté</span>' +
-							'<span ng-if="isAlive(p) && p.voteFor && p.$id == p.voteFor">se suicide...</span>' +
-							'<span ng-if="isAlive(p) && p.voteFor && p.$id != p.voteFor"><i class="icon-arrow-right"></i> {{users[game.players[p.voteFor].user].name}}</span>' +
+								'<span ng-if="isDead(p)">est mort</span>' +
+								'<span ng-if="isAlive(p) && !p.voteFor">n\'a pas encore voté</span>' +
+								'<span ng-if="isAlive(p) && p.voteFor && p.$id == p.voteFor">se suicide...</span>' +
+								'<span ng-if="isAlive(p) && p.voteFor && p.$id != p.voteFor"><i class="icon-arrow-right"></i> {{ users[game.players[p.voteFor].user].name }}</span>' +
 							'</small>' +
 						'</li>' +
 					'</ul>' +
 					'<div class="panel-footer">' +
 						'<div ng-pluralize="" count="mostVotedPlayers.length" when="{\'0\':\'Aucun vote pour le moment\', \'one\':\'Le plus voté :\', \'other\':\'Les {} plus votés :\'}"></div>' +
 						'<span class="label label-danger" ng-repeat="p in mostVotedPlayers">{{ users[game.players[p].user].name }}</span>' +
+						'<div class="text-success" style="margin-top:10px;" ng-if="countVotes() == votersCount"><i class="icon-ok"></i> Tout le monde a  voté !</div>' +
 					'</div>' +
 				'</div>',
 			scope : true,
@@ -299,18 +296,26 @@
 			'link' : function (scope, iElement, iAttrs, ngModel)
 			{
 				scope.players = {};
+				scope.votersCount = 0;
 
 				$rootScope.$watch('game.phase', function (phase) {
+					scope.votersCount = 0;
 					if (phase === lgPhase.LOUPS) {
 						angular.forEach($rootScope.players, function (player, id) {
-							console.log("player ", player, " is ", player.role);
-							if (player.team === 'V') {
+							console.log("player ", player, " is ", player.role, " team=", player.team);
+							if (player.team === lgTeam.VILLAGEOIS) {
 								scope.players[id] = player;
+							}
+							else if (player.team === lgTeam.LOUPS) {
+								scope.votersCount++;
 							}
 						});
 					}
 					else {
 						scope.players = $rootScope.players;
+						angular.forEach($rootScope.players, function () {
+							scope.votersCount++;
+						});
 					}
 				}, true);
 
@@ -332,12 +337,21 @@
 
 				scope.countVotes = function (player) {
 					var count = 0;
-					angular.forEach($rootScope.players, function (p) {
-						if (p.voteFor === player.$id) {
-							count++
-						}
-					});
-					scope.votesByPlayer[player.$id] = count;
+					if (! player) {
+						angular.forEach($rootScope.players, function (p) {
+							if (p.voteFor) {
+								count++
+							}
+						});
+					}
+					else {
+						angular.forEach($rootScope.players, function (p) {
+							if (p.voteFor === player.$id) {
+								count++
+							}
+						});
+						scope.votesByPlayer[player.$id] = count;
+					}
 					return count;
 				};
 
@@ -367,7 +381,7 @@
 
 
 
-	app.directive('lgSoothsayerUi', function (LG)
+	app.directive('lgSoothsayerUi', function (LG, $rootScope)
 	{
 		return {
 			'restrict' : 'A',
@@ -390,7 +404,7 @@
 				{
 					if (! scope.identityRevealed) {
 						scope.identityRevealed = true;
-						window.alert(player.role);
+						window.alert($rootScope.users[player.user].name + ' est ' + player.role);
 						LG.nextPhase();
 					}
 				};
@@ -612,6 +626,12 @@
 						}
 					});
 				}
+
+				$rootScope.$watch('game.status', function (status) {
+					if (status === 'RUNNING') {
+						update();
+					}
+				}, true);
 
 				$rootScope.$watchCollection('players', function () {
 					if ($rootScope.game.status === 'RUNNING') {

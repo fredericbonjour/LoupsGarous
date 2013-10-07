@@ -55,24 +55,4 @@
 
 	});
 
-
-	app.controller('NewGameController', function (LG, $scope, $rootScope)
-	{
-		$scope.gameData = {};
-
-		// Actions
-		$scope.createGame = function () {
-			$rootScope.game.status = 'WAITING';
-		};
-
-		$scope.joinGame = LG.joinGame;
-		$scope.prepareGame = LG.prepareGame;
-		$scope.cancelGame = LG.cancelGame;
-		$scope.stopGame = LG.stopGame;
-
-		$scope.beginGame = function () {
-			LG.beginGame($scope.gameData.selectedChars);
-		};
-	});
-
 })();

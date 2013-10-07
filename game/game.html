@@ -45,7 +45,7 @@
 				<div lg-character="me.char"></div>
 
 				<!-- UI votes -->
-				<div lg-players-poll="" ng-if="iAmAlive() && myTeamIs('L') || game.phase == 'villageois'"></div>
+				<div lg-players-poll="" ng-if="iAmAlive() && ((game.phase == 'loups' && myTeamIs('L')) || game.phase == 'villageois')"></div>
 				<div class="alert alert-info" ng-if="iAmDead()">
 					<h4>Vous êtes mort.</h4>
 					C'est terrible ce qui vous est arrivé... Mais un mort ne vote pas, désolé !

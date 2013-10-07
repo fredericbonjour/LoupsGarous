@@ -201,9 +201,6 @@ h4 > img.card {
 	margin-right: 10px;
 }
 
-[lg-players-poll] .list-group-item.me {
-	background: #dedbff;
-}
 [lg-players-poll] .list-group-item.me.active {
 	background: #D43F3A;
 	border-color: #D43F3A;
