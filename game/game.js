@@ -8,6 +8,25 @@
 		$scope.joinGame = LG.joinGame;
 		$scope.quitGame = LG.quitGame;
 
+		function onReady ()
+		{
+			LG.initUserPlayer();
+			$rootScope.$watch('game.phase', function (value, old)
+			{
+				if (value === lgPhase.VILLAGEOIS && value !== old) {
+					LG.playSound('coq');
+				}
+				else if (value === lgPhase.LOUPS && value !== old) {
+					LG.playSound('loup');
+				}
+
+				// FIXME
+				if ($rootScope.me) {
+					$rootScope.me.player.voteFor = null;
+				}
+			}, true);
+		}
+
 		// Game status changes
 
 		$rootScope.$watch('game.status', function (status, previous) {
@@ -20,7 +39,7 @@
 			else if (status === 'RUNNING') {
 				console.log("GameController: game.status=RUNNING, joinRef=", $rootScope.user.joinRef);
 				if ($rootScope.user.joinRef) {
-					LG.initUserPlayer();
+					onReady();
 				}
 				else {
 					console.log("Il semblerait que vous ne soyez pas dans la partie :(");
@@ -29,22 +48,6 @@
 			else if (previous === 'RUNNING' && status === 'STOPPED') {
 				//console.log("QUIT ??");
 				LG.quitGame();
-			}
-		}, true);
-
-
-		$rootScope.$watch('game.phase', function (value, old)
-		{
-			if (value === lgPhase.VILLAGEOIS && value !== old) {
-				LG.playSound('coq');
-			}
-			else if (value === lgPhase.LOUPS && value !== old) {
-				LG.playSound('loup');
-			}
-
-			// FIXME
-			if ($rootScope.me) {
-				$rootScope.me.player.voteFor = null;
 			}
 		}, true);
 

@@ -299,8 +299,6 @@
 					teams.push(chars[i].team);
 				}
 			}
-			console.log("roles=", roles);
-			console.log("teams=", teams);
 
 			var promises = [];
 
@@ -350,6 +348,7 @@
 				'char'   : angular.copy(lgCharacters.characterById(player.role)),
 				'player' : player
 			};
+			console.log("me=", $rootScope.me);
 		}
 
 		//
@@ -875,6 +874,12 @@
 			looser.status = 'DEAD';
 			$rootScope.players.update(looser, function () {
 				console.log("killed player synced!");
+
+				if (pId === $rootScope.me.player.$id) {
+					// TODO Useful?
+					$rootScope.me.player.status = looser.status;
+				}
+
 				$timeout(function () {
 					var char = lgCharacters.characterById(looser.role);
 					postGameMessage(

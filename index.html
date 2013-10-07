@@ -44,8 +44,8 @@
 			<li><a href="javascript:;" ng-click="userInfo.sounds = ! userInfo.sounds"><i class="icon-large" ng-class="{true:'icon-volume-up',false:'icon-volume-off'}[userInfo.sounds]"></i></a></li>
 		</ul>
 
-		<ul class="nav navbar-nav">
-			<li ng-if="isDead(me.player)"><a href="javascript:;">Vous êtes mort</a></li>
+		<ul class="nav navbar-nav" ng-if="iAmDead()">
+			<li><a href="javascript:;">Vous êtes mort</a></li>
 		</ul>
 
 		<ul class="nav navbar-nav navbar-right" ng-if="user">
